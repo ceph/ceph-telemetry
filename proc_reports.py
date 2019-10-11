@@ -3,6 +3,7 @@
 import hashlib
 import json
 import psycopg2
+import re
 import sys
 
 conn = None
@@ -19,10 +20,23 @@ def sanitize_backtrace(bt):
     return ret
 
 
-def calc_sig(funclist):
+def sanitize_assert_msg(msg):
+
+    # (?s) allows matching newline.  get everything up to "thread" and
+    # then after-and-including the last colon-space.  This skips the
+    # thread id, timestamp, and file:lineno, because file is already in
+    # the beginning, and lineno may vary.
+
+    matchexpr = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
+    return ''.join(matchexpr.match(msg).groups())
+
+
+def calc_sig(bt, assert_msg):
     sig = hashlib.sha256()
-    for func in funclist:
+    for func in sanitize_backtrace(bt):
         sig.update(func.encode())
+    if assert_msg:
+        sig.update(sanitize_assert_msg(assert_msg).encode())
     return ''.join('%02x' % c for c in sig.digest())
 
 
@@ -91,8 +105,8 @@ def update_crash(cluster_id, latest_report_ts, report):
         if not crash_id:
             continue
         stack = crash.get('backtrace')
-        funclist = sanitize_backtrace(stack)
-        sig = calc_sig(funclist)
+        assert_msg = crash.get('assert_msg')
+        sig = calc_sig(stack, assert_msg)
         cur.execute(
             "INSERT INTO crash (crash_id, cluster_id, raw_report, timestamp, entity_name, version, stack_sig, stack) values (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
             (crash_id,
