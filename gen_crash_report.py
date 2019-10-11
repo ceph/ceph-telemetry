@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # vim: ts=4 sw=4 expandtab:
+import json
 from operator import itemgetter
 import os
 import psycopg2
+import re
 import sys
 
 HOST = 'localhost'
@@ -18,6 +20,17 @@ def plural(count, noun, suffix='es'):
         return noun
     else:
         return ''.join((noun, suffix))
+
+
+def sanitize_assert_msg(msg):
+
+    # (?s) allows matching newline.  get everything up to "thread" and
+    # then after-and-including the last colon-space.  This skips the
+    # thread id, timestamp, and file:lineno, because file is already in
+    # the beginning, and lineno may vary.
+
+    matchexpr = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
+    return ''.join(matchexpr.match(msg).groups())
 
 
 def main():
@@ -42,9 +55,11 @@ def main():
         count = sig_and_count[1]
 
         # get the first of the N matching stacks
-        sigcur.execute('select stack from crash where stack_sig = %s limit 1', (sig,))
-        stack = sigcur.fetchone()
-        stack = eval(stack[0])
+        sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
+        stack_and_report = sigcur.fetchone()
+        stack = eval(stack_and_report[0])
+        report = json.loads(stack_and_report[1])
+        assert_msg = report.get('assert_msg')
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
@@ -77,6 +92,8 @@ def main():
                   clid_and_version[0], clid_and_version[1])
                  )
         print('stack:\n\t', '\n\t'.join(stack))
+        if assert_msg:
+            print('assert_msg: ', sanitize_assert_msg(assert_msg))
         print()
 
     conn.close()
