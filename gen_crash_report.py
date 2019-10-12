@@ -22,6 +22,17 @@ def plural(count, noun, suffix='es'):
         return ''.join((noun, suffix))
 
 
+def sanitize_backtrace(bt):
+    ret = list()
+    for func_record in bt:
+        # split into two fields on last space, take the first one,
+        # strip off leading ( and trailing )
+        func_plus_offset = func_record.rsplit(' ', 1)[0][1:-1]
+        ret.append(func_plus_offset.split('+')[0])
+
+    return ret
+
+
 def sanitize_assert_msg(msg):
 
     # (?s) allows matching newline.  get everything up to "thread" and
@@ -91,7 +102,7 @@ def main():
                   (count, plural(count, 'instance', 's'),
                   clid_and_version[0], clid_and_version[1])
                  )
-        print('stack:\n\t', '\n\t'.join(stack))
+        print('stack:\n\t', '\n\t'.join(sanitize_backtrace(stack)))
         if assert_msg:
             print('assert_msg: ', sanitize_assert_msg(assert_msg))
         print()
