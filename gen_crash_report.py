@@ -65,6 +65,18 @@ def main():
         sig = sig_and_count[0]
         count = sig_and_count[1]
 
+        # grab the sig for possible later use
+        sigcur.execute('select stack_sig, tracker_id, note from stack_sig_note where stack_sig = %s', (sig,))
+        row = sigcur.fetchall()
+        try:
+            tracker_id = row[0][1]
+        except IndexError:
+            tracker_id = None
+        try:
+            note = row[0][2]
+        except IndexError:
+            note = None
+
         # get the first of the N matching stacks
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
         stack_and_report = sigcur.fetchone()
@@ -102,9 +114,14 @@ def main():
                   (count, plural(count, 'instance', 's'),
                   clid_and_version[0], clid_and_version[1])
                  )
-        print('stack:\n\t', '\n\t'.join(sanitize_backtrace(stack)))
         if assert_msg:
             print('assert_msg: ', sanitize_assert_msg(assert_msg))
+        if tracker_id:
+            print('tracker_id: ', tracker_id)
+        if note:
+            print('note: ', note)
+        print('stack:\n\t', '\n\t'.join(sanitize_backtrace(stack)))
+
         print()
 
     conn.close()
