@@ -1,0 +1,5 @@
+elasticsearch
+requests
+flask
+flask_restful
+psycopg2
