@@ -15,26 +15,6 @@ class Report(Resource):
             p = f.read()
             self.pg_password = p.strip()
 
-    def _dots_to_percent(self, obj=None):
-        '''
-        Key names cannot contain '.' in Elasticsearch, so change
-        them to '%', first escaping any existing '%' to '%%'.
-        Don't worry about values.  Modifies keys in-place.
-        '''
-
-        # handle first call; others are recursive
-        if obj is None:
-            obj = self.report
-
-        for k, v in obj.items():
-            if isinstance(v, dict):
-                self._dots_to_percent(v)
-            if '.' in k:
-                del obj[k]
-                newk = k.replace('%', '%%')
-                newk = newk.replace('.', '%')
-                obj[newk] = v
-
     def _crashes_to_list(self):
         '''
         Early versions of telemetry sent crashes as a dict, keyed
@@ -99,7 +79,6 @@ class Report(Resource):
 
         self.post_to_file()
         self.post_to_postgres()
-        self.post_to_es()
 
         return jsonify(status=True)
 
@@ -108,14 +87,6 @@ class Report(Resource):
         with open('/opt/telemetry/raw/%s' % id, 'w') as f:
             f.write(json.dumps(self.report, indent=4))
             f.close()
-    
-    def post_to_es(self):
-        r = copy.deepcopy(self.report)
-        self._dots_to_percent(r)
-        es_id = self._report_id()
-        es = Elasticsearch()
-        es.index(index='telemetry', doc_type='report', id=es_id,
-                 body=r)
 
     def _connect_pg(self):
         return psycopg2.connect(
