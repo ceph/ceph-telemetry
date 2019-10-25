@@ -12,7 +12,7 @@ DBNAME = 'telemetry'
 USER = 'postgres'
 PASSPATH = os.path.join(os.environ['HOME'], '.pgpass')
 PASSWORD = open(PASSPATH, "r").read().strip().split(':')[-1]
-CRASH_AGE = "2 days"
+CRASH_AGE = "14 days"
 
 
 def plural(count, noun, suffix='es'):
@@ -61,28 +61,32 @@ def main():
           (unique_sig_count, plural(unique_sig_count, 'crash'), CRASH_AGE))
     print()
 
+    crashes = dict()
     for sig_and_count in cur.fetchall():
         sig = sig_and_count[0]
         count = sig_and_count[1]
 
-        # grab the sig for possible later use
+        crash = dict()
+        crash['count'] = count
+
+        # grab the sig note for possible later use
         sigcur.execute('select stack_sig, tracker_id, note from stack_sig_note where stack_sig = %s', (sig,))
         row = sigcur.fetchall()
         try:
-            tracker_id = row[0][1]
+            crash['tracker_id'] = row[0][1]
         except IndexError:
-            tracker_id = None
+            crash['tracker_id'] = None
         try:
-            note = row[0][2]
+            crash['note'] = row[0][2]
         except IndexError:
-            note = None
+            crash['note'] = None
 
         # get the first of the N matching stacks
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
         stack_and_report = sigcur.fetchone()
-        stack = eval(stack_and_report[0])
-        report = json.loads(stack_and_report[1])
-        assert_msg = report.get('assert_msg')
+        crash['stack'] = eval(stack_and_report[0])
+        crash['report'] = json.loads(stack_and_report[1])
+        crash['assert_msg'] = crash['report'].get('assert_msg')
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
@@ -98,33 +102,56 @@ def main():
                     clid_and_version_count[clid_and_version] += 1
                 else:
                     clid_and_version_count[clid_and_version] = 1
-        clusters = set()
+        crash['clid_and_version_count'] = clid_and_version_count
+        crash['clusters'] = set()
         for clid_and_version in clid_and_version_count.keys():
-            clusters.add(clid_and_version[0])
-        print('Crash signature %s\n%s total %s on %d %s' %
-              (sig, count, plural(count, 'instance', 's'),
-              len(clusters), plural(len(clusters), 'cluster', 's'))
+            crash['clusters'].add(clid_and_version[0])
+
+        # accumulate current crash in crashes
+        crashes[sig] = crash
+
+
+    # if only single-cluster crashes, don't report
+    if all(
+        (len(kv[1]['clid_and_version_count']) == 1 for kv in crashes.items())
+        ):
+        print('All %d crashes on one cluster only' % len(crashes))
+        conn.close()
+        return 0
+
+    # sort by len(crash['clid_and_version_count']), largest first
+    for sig, crash in sorted(
+        crashes.items(),
+        key=lambda kv: len(kv[1]['clid_and_version_count']),
+        reverse=True,):
+        print(
+                'Crash signature %s\n%s total %s on %d %s' %
+                (sig, crash['count'], plural(crash['count'], 'instance', 's'),
+                len(crash['clusters']),
+                plural(len(crash['clusters']), 'cluster', 's'))
              )
+        # sort by count in cluster/version, largest first
         for clid_and_version, count in sorted(
-                clid_and_version_count.items(),
-                key=itemgetter(1),
-                reverse=True,
-            ):
+            crash['clid_and_version_count'].items(),
+            key=itemgetter(1),
+            reverse=True,
+        ):
             print('%d %s, cluster %s, ceph ver %s' %
                   (count, plural(count, 'instance', 's'),
                   clid_and_version[0], clid_and_version[1])
                  )
-        if assert_msg:
-            print('assert_msg: ', sanitize_assert_msg(assert_msg))
-        if tracker_id:
-            print('tracker_id: ', tracker_id)
-        if note:
-            print('note: ', note)
-        print('stack:\n\t', '\n\t'.join(sanitize_backtrace(stack)))
+        if crash['assert_msg']:
+            print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
+        if crash['tracker_id']:
+            print('tracker_id: ', crash['tracker_id'])
+        if crash['note']:
+            print('note: ', crash['note'])
+        print('stack:\n\t', '\n\t'.join(sanitize_backtrace(crash['stack'])))
 
         print()
 
     conn.close()
+    return 0
 
 
 if __name__ == '__main__':
