@@ -110,26 +110,22 @@ def main():
         # accumulate current crash in crashes
         crashes[sig] = crash
 
-
     # if only single-cluster crashes, don't report
-    if all(
-        (len(kv[1]['clid_and_version_count']) == 1 for kv in crashes.items())
-        ):
+    if all((len(kv[1]['clid_and_version_count']) == 1
+            for kv in crashes.items())):
         print('All %d crashes on one cluster only' % len(crashes))
         conn.close()
         return 0
 
     # sort by len(crash['clid_and_version_count']), largest first
     for sig, crash in sorted(
-        crashes.items(),
-        key=lambda kv: len(kv[1]['clid_and_version_count']),
-        reverse=True,):
-        print(
-                'Crash signature %s\n%s total %s on %d %s' %
-                (sig, crash['count'], plural(crash['count'], 'instance', 's'),
-                len(crash['clusters']),
-                plural(len(crash['clusters']), 'cluster', 's'))
-             )
+            crashes.items(),
+            key=lambda kv: len(kv[1]['clid_and_version_count']),
+            reverse=True,):
+        print('Crash signature %s\n%s total %s on %d %s' %
+              (sig, crash['count'], plural(crash['count'], 'instance', 's'),
+               len(crash['clusters']),
+               plural(len(crash['clusters']), 'cluster', 's')))
         # sort by count in cluster/version, largest first
         for clid_and_version, count in sorted(
             crash['clid_and_version_count'].items(),
@@ -138,8 +134,7 @@ def main():
         ):
             print('%d %s, cluster %s, ceph ver %s' %
                   (count, plural(count, 'instance', 's'),
-                  clid_and_version[0], clid_and_version[1])
-                 )
+                   clid_and_version[0], clid_and_version[1]))
         if crash['assert_msg']:
             print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
         if crash['tracker_id']:
