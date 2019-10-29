@@ -32,9 +32,11 @@ class Device(Resource):
     def post_to_postgres(self):
         conn = self._connect_pg()
         cur = conn.cursor()
-        for devid, devinfo in self.report:
-            for stamp, report in devinfo:
+        for devid, devinfo in self.report.items():
+            for stamp, report in devinfo.items():
+                # convert stamp string (YYYYMMDD-HHMMSS) to a python timestamp
+                ts = datetime.datetime.strptime(stamp, '%Y%m%d-%H%M%S')
                 cur.execute(
                     'INSERT INTO device_report (device_id, report_stamp, report) VALUES (%s,%s,%s) ON CONFLICT DO NOTHING',
-                    (devid, stamp, report))
+                    (devid, ts, json.dumps(report)))
         conn.commit()
