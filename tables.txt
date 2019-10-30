@@ -7,7 +7,7 @@ CREATE TABLE report (
 );
 
 CREATE TABLE device_report (
-       device_id VARCHAR(50),
+       device_id VARCHAR(128),
        report_stamp TIMESTAMP,
        report TEXT,
        PRIMARY KEY(device_id, report_stamp)
