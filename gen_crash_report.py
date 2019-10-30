@@ -4,8 +4,10 @@ from collections import defaultdict
 import json
 from operator import itemgetter
 import os
+import os.path
 import psycopg2
 import re
+import requests
 import sys
 
 HOST = 'localhost'
@@ -45,7 +47,57 @@ def sanitize_assert_msg(msg):
     return ''.join(matchexpr.match(msg).groups())
 
 
+def get_tracker_sig_fieldid():
+    '''
+    Connect to tracker to get the numeric id of the custom field
+    holding crash signatures; we'll use it against the signature to
+    find any related tracker issues
+    '''
+    keypath = os.path.join(os.environ['HOME'], '.tracker.api.key')
+    with open(keypath, 'r') as keyfile:
+        key = keyfile.read().strip()
+    response = requests.get('https://tracker.ceph.com/custom_fields.json',
+                            params={'key': key},)
+    for fielddict in response.json()['custom_fields']:
+        if fielddict['name'] == 'Crash signature':
+            return fielddict['id']
+    return -1
+
+
+def get_all_trackers_with_crashsigs():
+    '''
+    Snarf all the tracker info with non-null crashids; way more
+    efficient than querying each crashsig, at least when the crashsig
+    usage is sparse.  Maybe someday we'll need to change back to
+    querying for each signature if this gets too large.
+
+    Return what we want to print: a dict keyed by crashsig, with
+    tuples (id, status) holding the tracker ID number and Status fields.
+    '''
+
+    trackers_by_sig = dict()
+    tracker_sig_fieldid = get_tracker_sig_fieldid()
+    response = requests.get('https://tracker.ceph.com/issues.json',
+                            params={'cf_%d' % tracker_sig_fieldid: '*'})
+    sig_issues = response.json()
+    for issue in sig_issues['issues']:
+        crashid = -1
+        for cf in issue['custom_fields']:
+            if cf['id'] == tracker_sig_fieldid:
+                crashid = cf['value']
+                break
+        if crashid == -1:
+            continue
+        if crashid not in trackers_by_sig:
+            trackers_by_sig[crashid] = list()
+        trackers_by_sig[crashid].append((issue['id'], issue['status']['name']))
+    return trackers_by_sig
+
+
 def main():
+
+    trackers_by_sig = get_all_trackers_with_crashsigs()
+
     conn = psycopg2.connect(host=HOST, dbname=DBNAME, user=USER, password=PASSWORD)
     cur = conn.cursor()
     sigcur = conn.cursor()
@@ -70,17 +122,11 @@ def main():
         crash = dict()
         crash['count'] = count
 
-        # grab the sig note for possible later use
-        sigcur.execute('select stack_sig, tracker_id, note from stack_sig_note where stack_sig = %s', (sig,))
-        row = sigcur.fetchall()
-        try:
-            crash['tracker_id'] = row[0][1]
-        except IndexError:
-            crash['tracker_id'] = None
-        try:
-            crash['note'] = row[0][2]
-        except IndexError:
-            crash['note'] = None
+        # get any matching tracker issues, add to crash dict
+        if sig in trackers_by_sig:
+            crash['trackers'] = list()
+            for id_and_status in trackers_by_sig[sig]:
+                crash['trackers'].append(id_and_status)
 
         # get the first of the N matching stacks
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
@@ -135,10 +181,10 @@ def main():
                    clid_vers[0], clid_vers[1]))
         if crash['assert_msg']:
             print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
-        if crash['tracker_id']:
-            print('tracker_id: ', crash['tracker_id'])
-        if crash['note']:
-            print('note: ', crash['note'])
+        if 'trackers' in crash:
+            for tracker in crash['trackers']:
+                print('https://tracker.ceph.com/issues/%d' % tracker[0],
+                      'status:', tracker[1])
         print('stack:\n\t', '\n\t'.join(sanitize_backtrace(crash['stack'])))
 
         print()
