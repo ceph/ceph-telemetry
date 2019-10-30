@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # vim: ts=4 sw=4 expandtab:
+from collections import defaultdict
 import json
 from operator import itemgetter
 import os
@@ -90,51 +91,48 @@ def main():
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
-        clid_and_version_count = dict()
+        clid_vers_count = defaultdict(int)
         for crash_id in sigcur.fetchall():
             # for each crash instance, fetch all clusters that experienced it
             # accumulate versions and counts
             crash_id = crash_id[0]
             crashcur.execute('select cluster_id, version from crash where crash_id = %s', (crash_id,))
             clids_and_versions = crashcur.fetchall()
-            for clid_and_version in clids_and_versions:
-                if clid_and_version in clid_and_version_count:
-                    clid_and_version_count[clid_and_version] += 1
-                else:
-                    clid_and_version_count[clid_and_version] = 1
-        crash['clid_and_version_count'] = clid_and_version_count
+            for clid_vers in clids_and_versions:
+                clid_vers_count[clid_vers] += 1
+        crash['clid_vers_count'] = clid_vers_count
         crash['clusters'] = set()
-        for clid_and_version in clid_and_version_count.keys():
-            crash['clusters'].add(clid_and_version[0])
+        for clid_vers in clid_vers_count.keys():
+            crash['clusters'].add(clid_vers[0])
 
         # accumulate current crash in crashes
         crashes[sig] = crash
 
     # if only single-cluster crashes, don't report
-    if all((len(kv[1]['clid_and_version_count']) == 1
+    if all((len(kv[1]['clid_vers_count']) == 1
             for kv in crashes.items())):
         print('All %d crashes on one cluster only' % len(crashes))
         conn.close()
         return 0
 
-    # sort by len(crash['clid_and_version_count']), largest first
+    # sort by len(crash['clid_vers_count']), largest first
     for sig, crash in sorted(
             crashes.items(),
-            key=lambda kv: len(kv[1]['clid_and_version_count']),
+            key=lambda kv: len(kv[1]['clid_vers_count']),
             reverse=True,):
         print('Crash signature %s\n%s total %s on %d %s' %
               (sig, crash['count'], plural(crash['count'], 'instance', 's'),
                len(crash['clusters']),
                plural(len(crash['clusters']), 'cluster', 's')))
         # sort by count in cluster/version, largest first
-        for clid_and_version, count in sorted(
-            crash['clid_and_version_count'].items(),
+        for clid_vers, count in sorted(
+            crash['clid_vers_count'].items(),
             key=itemgetter(1),
             reverse=True,
         ):
             print('%d %s, cluster %s, ceph ver %s' %
                   (count, plural(count, 'instance', 's'),
-                   clid_and_version[0], clid_and_version[1]))
+                   clid_vers[0], clid_vers[1]))
         if crash['assert_msg']:
             print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
         if crash['tracker_id']:
