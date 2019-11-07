@@ -36,6 +36,9 @@ def sanitize_backtrace(bt):
     return ret
 
 
+ASSERT_MATCHEXPR = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
+
+
 def sanitize_assert_msg(msg):
 
     # (?s) allows matching newline.  get everything up to "thread" and
@@ -43,8 +46,7 @@ def sanitize_assert_msg(msg):
     # thread id, timestamp, and file:lineno, because file is already in
     # the beginning, and lineno may vary.
 
-    matchexpr = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
-    return ''.join(matchexpr.match(msg).groups())
+    return ''.join(ASSERT_MATCHEXPR.match(msg).groups())
 
 
 def get_tracker_sig_fieldid():
