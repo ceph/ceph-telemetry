@@ -2,7 +2,6 @@
 # vim: ts=4 sw=4 expandtab:
 from collections import defaultdict
 import json
-from operator import itemgetter
 import os
 import os.path
 import psycopg2
@@ -139,48 +138,71 @@ def main():
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
-        clid_vers_count = defaultdict(int)
+
+        cluster_to_count = defaultdict(lambda: ([0, set()]))
+        # map key (cluster_id, version) to value [count, set(entities)]
         for crash_id in sigcur.fetchall():
             # for each crash instance, fetch all clusters that experienced it
-            # accumulate versions and counts
+            # accumulate versions and entities that got the crash
             crash_id = crash_id[0]
-            crashcur.execute('select cluster_id, version from crash where crash_id = %s', (crash_id,))
-            clids_and_versions = crashcur.fetchall()
-            for clid_vers in clids_and_versions:
-                clid_vers_count[clid_vers] += 1
-        crash['clid_vers_count'] = clid_vers_count
+            crashcur.execute('select cluster_id, version, entity_name from crash where crash_id = %s', (crash_id,))
+            rows = crashcur.fetchall()
+            for row in rows:
+                # row is (clid, vers, entity_name); use first two for key
+                key = tuple(row[0:2])
+                cluster_to_count[key][0] += 1
+                cluster_to_count[key][1].add(row[2].strip())
+        crash['cluster_to_count'] = cluster_to_count
         crash['clusters'] = set()
-        for clid_vers in clid_vers_count.keys():
+        for clid_vers in cluster_to_count.keys():
             crash['clusters'].add(clid_vers[0])
 
         # accumulate current crash in crashes
         crashes[sig] = crash
 
     # if only single-cluster crashes, don't report
-    if all((len(kv[1]['clid_vers_count']) == 1
+    if all((len(kv[1]['cluster_to_count']) == 1
             for kv in crashes.items())):
         print('All %d crashes on one cluster only' % len(crashes))
         conn.close()
         return 0
 
-    # sort by len(crash['clid_vers_count']), largest first
+    # each keyfunc is called with ((clid,vers), (count,entitylist))
+
+    def entitylistlen_keyfunc(item):
+        return len(item[1][1])
+
+    def count_keyfunc(item):
+        return item[1][0]
+
+    # sort by len(crash['cluster_to_count']), largest first
     for sig, crash in sorted(
             crashes.items(),
-            key=lambda kv: len(kv[1]['clid_vers_count']),
+            key=lambda kv: len(kv[1]['cluster_to_count']),
             reverse=True,):
         print('Crash signature %s\n%s total %s on %d %s' %
               (sig, crash['count'], plural(crash['count'], 'instance', 's'),
                len(crash['clusters']),
                plural(len(crash['clusters']), 'cluster', 's')))
-        # sort by count in cluster/version, largest first
-        for clid_vers, count in sorted(
-            crash['clid_vers_count'].items(),
-            key=itemgetter(1),
-            reverse=True,
+        # sort first by sig instance count, then by len(entities),
+        # in descending order.  Actually call sort by minor field
+        # and then major field
+        sorted_by_num_entities = \
+            sorted(crash['cluster_to_count'].items(),
+                   key=entitylistlen_keyfunc,
+                   reverse=True,)
+        for clid_vers, (count, entities) in sorted(
+            sorted_by_num_entities,
+            key=count_keyfunc,
+            reverse=True
         ):
-            print('%d %s, cluster %s, ceph ver %s' %
-                  (count, plural(count, 'instance', 's'),
-                   clid_vers[0], clid_vers[1]))
+            print('%d %s, cluster %s, ceph ver %s\nentities %s' % (
+                count,
+                plural(count, 'instance', 's'),
+                clid_vers[0],
+                clid_vers[1],
+                '\n'.join(entities))
+            )
         if crash['assert_msg']:
             print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
         if 'trackers' in crash:
