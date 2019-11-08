@@ -2,7 +2,6 @@
 # vim: ts=4 sw=4 expandtab:
 from collections import defaultdict
 import json
-from operator import itemgetter
 import os
 import os.path
 import psycopg2
@@ -36,6 +35,9 @@ def sanitize_backtrace(bt):
     return ret
 
 
+ASSERT_MATCHEXPR = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
+
+
 def sanitize_assert_msg(msg):
 
     # (?s) allows matching newline.  get everything up to "thread" and
@@ -43,8 +45,7 @@ def sanitize_assert_msg(msg):
     # thread id, timestamp, and file:lineno, because file is already in
     # the beginning, and lineno may vary.
 
-    matchexpr = re.compile(r'(?s)(.*) thread .* time .*(: .*)\n')
-    return ''.join(matchexpr.match(msg).groups())
+    return ''.join(ASSERT_MATCHEXPR.match(msg).groups())
 
 
 def get_tracker_sig_fieldid():
@@ -66,7 +67,7 @@ def get_tracker_sig_fieldid():
 
 def get_all_trackers_with_crashsigs():
     '''
-    Snarf all the tracker info with non-null crashids; way more
+    Snarf all the tracker info with non-null crashsigs; way more
     efficient than querying each crashsig, at least when the crashsig
     usage is sparse.  Maybe someday we'll need to change back to
     querying for each signature if this gets too large.
@@ -81,28 +82,51 @@ def get_all_trackers_with_crashsigs():
                             params={'cf_%d' % tracker_sig_fieldid: '*'})
     sig_issues = response.json()
     for issue in sig_issues['issues']:
-        crashid = -1
+        sigs = list()
         for cf in issue['custom_fields']:
             if cf['id'] == tracker_sig_fieldid:
-                crashid = cf['value']
+                # note: value is a \r\n-separated list
+                sigs = cf['value'].split()
                 break
-        if crashid == -1:
+        if not sigs:
             continue
-        if crashid not in trackers_by_sig:
-            trackers_by_sig[crashid] = list()
-        trackers_by_sig[crashid].append((issue['id'], issue['status']['name']))
+        for sig in sigs:
+            if sig not in trackers_by_sig:
+                trackers_by_sig[sig] = list()
+            trackers_by_sig[sig].append(
+                (issue['id'], issue['status']['name']))
     return trackers_by_sig
 
 
-def main():
+def accumulate_crashes():
+    '''
+    connect to postgres, get all crashes and store them away into a master
+    dict that maps crashsig to entries with keys:
+
+    'count':        number of occurrences of crashsig
+    'trackers':     list of (issue_id, status_string) for all tracker issues
+                    that refer to this signature, if any
+    'stack':        unprocessed backtrace from crash
+    'assert_msg':   assert msg from crash, if any
+    'cluster_to_count':
+                    dict mapping (cluster_id, ceph_version) to
+                    (count, set(entity_names)); count is total count
+                    of occurrences per this cluster/version pair,
+                    entity_names are all the unique entity names that
+                    experienced the crash
+    'clusters':     set of clusters that experienced the crash
+
+    Returns:        (count of unique crashsigs, the above dict)
+
+    '''
 
     trackers_by_sig = get_all_trackers_with_crashsigs()
 
     conn = psycopg2.connect(host=HOST, dbname=DBNAME, user=USER, password=PASSWORD)
+
     cur = conn.cursor()
     sigcur = conn.cursor()
     crashcur = conn.cursor()
-
     # fetch all the recent stack sigs by frequency of occurence
     cur.execute("""
         select stack_sig, count(stack_sig) from crash
@@ -110,14 +134,9 @@ def main():
         order by count desc""", (CRASH_AGE,))
 
     unique_sig_count = cur.statusmessage.split()[1]
-    print('%s unique %s collected in last %s:' %
-          (unique_sig_count, plural(unique_sig_count, 'crash'), CRASH_AGE))
-    print()
-
     crashes = dict()
-    for sig_and_count in cur.fetchall():
-        sig = sig_and_count[0]
-        count = sig_and_count[1]
+
+    for sig, count in cur.fetchall():
 
         crash = dict()
         crash['count'] = count
@@ -130,55 +149,88 @@ def main():
 
         # get the first of the N matching stacks
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
-        stack_and_report = sigcur.fetchone()
-        crash['stack'] = eval(stack_and_report[0])
-        crash['report'] = json.loads(stack_and_report[1])
-        crash['assert_msg'] = crash['report'].get('assert_msg')
+        stack, report = sigcur.fetchone()
+        crash['stack'] = eval(stack)
+        report = json.loads(report)
+        crash['assert_msg'] = report.get('assert_msg')
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
-        clid_vers_count = defaultdict(int)
+
+        cluster_to_count = defaultdict(lambda: ([0, set()]))
+        # map key (cluster_id, version) to value [count, set(entities)]
         for crash_id in sigcur.fetchall():
             # for each crash instance, fetch all clusters that experienced it
-            # accumulate versions and counts
+            # accumulate versions and entities that got the crash
             crash_id = crash_id[0]
-            crashcur.execute('select cluster_id, version from crash where crash_id = %s', (crash_id,))
-            clids_and_versions = crashcur.fetchall()
-            for clid_vers in clids_and_versions:
-                clid_vers_count[clid_vers] += 1
-        crash['clid_vers_count'] = clid_vers_count
+            crashcur.execute('select cluster_id, version, entity_name from crash where crash_id = %s', (crash_id,))
+            rows = crashcur.fetchall()
+            for clid, vers, entity_name in rows:
+                key = (clid, vers)
+                cluster_to_count[key][0] += 1
+                cluster_to_count[key][1].add(entity_name.strip())
+        crash['cluster_to_count'] = cluster_to_count
         crash['clusters'] = set()
-        for clid_vers in clid_vers_count.keys():
+        for clid_vers in cluster_to_count.keys():
             crash['clusters'].add(clid_vers[0])
 
         # accumulate current crash in crashes
         crashes[sig] = crash
 
+    conn.close()
+    return unique_sig_count, crashes
+
+
+def main():
+
+    unique_sig_count, crashes = accumulate_crashes()
+
+    print('%s unique %s collected in last %s:' %
+          (unique_sig_count, plural(unique_sig_count, 'crash'), CRASH_AGE))
+    print()
+
     # if only single-cluster crashes, don't report
-    if all((len(kv[1]['clid_vers_count']) == 1
+    if all((len(kv[1]['cluster_to_count']) == 1
             for kv in crashes.items())):
         print('All %d crashes on one cluster only' % len(crashes))
-        conn.close()
         return 0
 
-    # sort by len(crash['clid_vers_count']), largest first
+    # each keyfunc is called with ((clid,vers), (count,entitylist))
+
+    def entitylistlen_keyfunc(item):
+        return len(item[1][1])
+
+    def count_keyfunc(item):
+        return item[1][0]
+
+    # sort by len(crash['cluster_to_count']), largest first
     for sig, crash in sorted(
             crashes.items(),
-            key=lambda kv: len(kv[1]['clid_vers_count']),
+            key=lambda kv: len(kv[1]['cluster_to_count']),
             reverse=True,):
         print('Crash signature %s\n%s total %s on %d %s' %
               (sig, crash['count'], plural(crash['count'], 'instance', 's'),
                len(crash['clusters']),
                plural(len(crash['clusters']), 'cluster', 's')))
-        # sort by count in cluster/version, largest first
-        for clid_vers, count in sorted(
-            crash['clid_vers_count'].items(),
-            key=itemgetter(1),
-            reverse=True,
+        # sort first by sig instance count, then by len(entities),
+        # in descending order.  Actually call sort by minor field
+        # and then major field
+        sorted_by_num_entities = \
+            sorted(crash['cluster_to_count'].items(),
+                   key=entitylistlen_keyfunc,
+                   reverse=True,)
+        for clid_vers, (count, entities) in sorted(
+            sorted_by_num_entities,
+            key=count_keyfunc,
+            reverse=True
         ):
-            print('%d %s, cluster %s, ceph ver %s' %
-                  (count, plural(count, 'instance', 's'),
-                   clid_vers[0], clid_vers[1]))
+            print('%d %s, cluster %s, ceph ver %s\nentities:\n%s' % (
+                count,
+                plural(count, 'instance', 's'),
+                clid_vers[0],
+                clid_vers[1],
+                '\n'.join(entities))
+            )
         if crash['assert_msg']:
             print('assert_msg: ', sanitize_assert_msg(crash['assert_msg']))
         if 'trackers' in crash:
@@ -189,7 +241,6 @@ def main():
 
         print()
 
-    conn.close()
     return 0
 
 
