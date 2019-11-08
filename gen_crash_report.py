@@ -67,7 +67,7 @@ def get_tracker_sig_fieldid():
 
 def get_all_trackers_with_crashsigs():
     '''
-    Snarf all the tracker info with non-null crashids; way more
+    Snarf all the tracker info with non-null crashsigs; way more
     efficient than querying each crashsig, at least when the crashsig
     usage is sparse.  Maybe someday we'll need to change back to
     querying for each signature if this gets too large.
@@ -82,16 +82,19 @@ def get_all_trackers_with_crashsigs():
                             params={'cf_%d' % tracker_sig_fieldid: '*'})
     sig_issues = response.json()
     for issue in sig_issues['issues']:
-        crashid = -1
+        sigs = list()
         for cf in issue['custom_fields']:
             if cf['id'] == tracker_sig_fieldid:
-                crashid = cf['value']
+                # note: value is a \r\n-separated list
+                sigs = cf['value'].split()
                 break
-        if crashid == -1:
+        if not sigs:
             continue
-        if crashid not in trackers_by_sig:
-            trackers_by_sig[crashid] = list()
-        trackers_by_sig[crashid].append((issue['id'], issue['status']['name']))
+        for sig in sigs:
+            if sig not in trackers_by_sig:
+                trackers_by_sig[sig] = list()
+            trackers_by_sig[sig].append(
+                (issue['id'], issue['status']['name']))
     return trackers_by_sig
 
 
