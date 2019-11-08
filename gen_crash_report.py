@@ -136,9 +136,7 @@ def accumulate_crashes():
     unique_sig_count = cur.statusmessage.split()[1]
     crashes = dict()
 
-    for sig_and_count in cur.fetchall():
-        sig = sig_and_count[0]
-        count = sig_and_count[1]
+    for sig, count in cur.fetchall():
 
         crash = dict()
         crash['count'] = count
@@ -151,9 +149,9 @@ def accumulate_crashes():
 
         # get the first of the N matching stacks
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
-        stack_and_report = sigcur.fetchone()
-        crash['stack'] = eval(stack_and_report[0])
-        report = json.loads(stack_and_report[1])
+        stack, report = sigcur.fetchone()
+        crash['stack'] = eval(stack)
+        report = json.loads(report)
         crash['assert_msg'] = report.get('assert_msg')
 
         # for each sig, fetch the crash instances that match it
@@ -167,11 +165,10 @@ def accumulate_crashes():
             crash_id = crash_id[0]
             crashcur.execute('select cluster_id, version, entity_name from crash where crash_id = %s', (crash_id,))
             rows = crashcur.fetchall()
-            for row in rows:
-                # row is (clid, vers, entity_name); use first two for key
-                key = tuple(row[0:2])
+            for clid, vers, entity_name in rows:
+                key = (clid, vers)
                 cluster_to_count[key][0] += 1
-                cluster_to_count[key][1].add(row[2].strip())
+                cluster_to_count[key][1].add(entity_name.strip())
         crash['cluster_to_count'] = cluster_to_count
         crash['clusters'] = set()
         for clid_vers in cluster_to_count.keys():
