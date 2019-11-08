@@ -98,15 +98,35 @@ def get_all_trackers_with_crashsigs():
     return trackers_by_sig
 
 
-def main():
+def accumulate_crashes():
+    '''
+    connect to postgres, get all crashes and store them away into a master
+    dict that maps crashsig to entries with keys:
+
+    'count':        number of occurrences of crashsig
+    'trackers':     list of (issue_id, status_string) for all tracker issues
+                    that refer to this signature, if any
+    'stack':        unprocessed backtrace from crash
+    'assert_msg':   assert msg from crash, if any
+    'cluster_to_count':
+                    dict mapping (cluster_id, ceph_version) to
+                    (count, set(entity_names)); count is total count
+                    of occurrences per this cluster/version pair,
+                    entity_names are all the unique entity names that
+                    experienced the crash
+    'clusters':     set of clusters that experienced the crash
+
+    Returns:        (count of unique crashsigs, the above dict)
+
+    '''
 
     trackers_by_sig = get_all_trackers_with_crashsigs()
 
     conn = psycopg2.connect(host=HOST, dbname=DBNAME, user=USER, password=PASSWORD)
+
     cur = conn.cursor()
     sigcur = conn.cursor()
     crashcur = conn.cursor()
-
     # fetch all the recent stack sigs by frequency of occurence
     cur.execute("""
         select stack_sig, count(stack_sig) from crash
@@ -114,11 +134,8 @@ def main():
         order by count desc""", (CRASH_AGE,))
 
     unique_sig_count = cur.statusmessage.split()[1]
-    print('%s unique %s collected in last %s:' %
-          (unique_sig_count, plural(unique_sig_count, 'crash'), CRASH_AGE))
-    print()
-
     crashes = dict()
+
     for sig_and_count in cur.fetchall():
         sig = sig_and_count[0]
         count = sig_and_count[1]
@@ -136,8 +153,8 @@ def main():
         sigcur.execute('select stack, raw_report from crash where stack_sig = %s limit 1', (sig,))
         stack_and_report = sigcur.fetchone()
         crash['stack'] = eval(stack_and_report[0])
-        crash['report'] = json.loads(stack_and_report[1])
-        crash['assert_msg'] = crash['report'].get('assert_msg')
+        report = json.loads(stack_and_report[1])
+        crash['assert_msg'] = report.get('assert_msg')
 
         # for each sig, fetch the crash instances that match it
         sigcur.execute('select crash_id from crash where age(timestamp) < interval %s and stack_sig = %s', (CRASH_AGE, sig))
@@ -163,11 +180,22 @@ def main():
         # accumulate current crash in crashes
         crashes[sig] = crash
 
+    conn.close()
+    return unique_sig_count, crashes
+
+
+def main():
+
+    unique_sig_count, crashes = accumulate_crashes()
+
+    print('%s unique %s collected in last %s:' %
+          (unique_sig_count, plural(unique_sig_count, 'crash'), CRASH_AGE))
+    print()
+
     # if only single-cluster crashes, don't report
     if all((len(kv[1]['cluster_to_count']) == 1
             for kv in crashes.items())):
         print('All %d crashes on one cluster only' % len(crashes))
-        conn.close()
         return 0
 
     # each keyfunc is called with ((clid,vers), (count,entitylist))
@@ -199,7 +227,7 @@ def main():
             key=count_keyfunc,
             reverse=True
         ):
-            print('%d %s, cluster %s, ceph ver %s\nentities %s' % (
+            print('%d %s, cluster %s, ceph ver %s\nentities:\n%s' % (
                 count,
                 plural(count, 'instance', 's'),
                 clid_vers[0],
@@ -216,7 +244,6 @@ def main():
 
         print()
 
-    conn.close()
     return 0
 
 
