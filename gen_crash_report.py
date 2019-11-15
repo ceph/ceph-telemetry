@@ -79,7 +79,10 @@ def get_all_trackers_with_crashsigs():
     trackers_by_sig = dict()
     tracker_sig_fieldid = get_tracker_sig_fieldid()
     response = requests.get('https://tracker.ceph.com/issues.json',
-                            params={'cf_%d' % tracker_sig_fieldid: '*'})
+                            params={
+                                'cf_%d' % tracker_sig_fieldid: '*',
+                                'status_id': '*',
+                            })
     sig_issues = response.json()
     for issue in sig_issues['issues']:
         sigs = list()
