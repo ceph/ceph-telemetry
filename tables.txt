@@ -53,4 +53,10 @@ CREATE TABLE crash (
        stack TEXT
 );
 
+CREATE TABLE version_history_all_clusters (
+	sample_timestamp TIMESTAMP,
+	version VARCHAR(30),
+	count INTEGER
+)
+
 
