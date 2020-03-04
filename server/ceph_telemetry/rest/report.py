@@ -1,6 +1,5 @@
 from flask import request, jsonify
 from flask_restful import Resource
-from elasticsearch import Elasticsearch
 import datetime
 import hashlib
 import json
