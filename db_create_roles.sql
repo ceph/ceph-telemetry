@@ -1,4 +1,3 @@
-
 --CREATE USER grafana WITH PASSWORD '<PASSWORD>';
 --CREATE USER grafana_ro WITH PASSWORD '<PASSWORD>';
 GRANT USAGE ON SCHEMA grafana TO grafana, grafana_ro;
@@ -56,3 +55,16 @@ GRANT USAGE ON LANGUAGE SQL to postgres, telemetry;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE CONNECT, TEMPORARY ON DATABASE telemetry FROM PUBLIC;
 REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+
+-- dashboard_device schema roles:
+CREATE SCHEMA IF NOT EXISTS dashboard_device;
+
+GRANT USAGE ON SCHEMA dashboard_device TO dashboard, grafana, grafana_ro;
+GRANT CREATE ON SCHEMA dashboard_device TO grafana;
+GRANT ALL ON ALL TABLES IN SCHEMA dashboard_device TO grafana;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA dashboard_device TO dashboard, grafana_ro;
+
+ALTER DEFAULT PRIVILEGES
+    FOR ROLE grafana
+    IN SCHEMA dashboard_device
+    GRANT EXECUTE ON FUNCTIONS TO dashboard;
