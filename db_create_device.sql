@@ -176,3 +176,9 @@ CREATE TABLE device.mapping (
     o_vendor          VARCHAR(128), -- Output vendor
     o_model           VARCHAR(128)  -- Output model
 );
+
+CREATE TABLE device.prediction_result (
+    device_id   INTEGER PRIMARY KEY REFERENCES device.device(id) ON DELETE CASCADE,
+    result      TEXT
+);
+
