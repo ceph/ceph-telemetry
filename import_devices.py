@@ -360,8 +360,9 @@ def populate_device_smart_sata(cur, sata_smart_attr, device_id, report_id, ts):
         device_smart_sata['ts']           = ts
         device_smart_sata['attr_id']      = attr['id']
         device_smart_sata['attr_name']    = attr['name']
-        device_smart_sata['attr_val']     = attr['raw']['value']
-        device_smart_sata['attr_val_str'] = attr['raw']['string']
+        device_smart_sata['attr_raw']     = attr['raw']['value']
+        device_smart_sata['attr_raw_str'] = attr['raw']['string']
+        device_smart_sata['attr_norm']    = attr['value']
         device_smart_sata['attr_worst']   = attr['worst']
 
         sql = 'INSERT INTO device.smart_sata (%s) VALUES %s'

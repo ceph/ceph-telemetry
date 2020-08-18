@@ -26,10 +26,8 @@ GRANT CREATE ON SCHEMA device TO grafana;
 GRANT ALL ON ALL TABLES IN SCHEMA device TO grafana;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA device TO grafana;
 
--- May need to run these commands as user 'postgres'.
 GRANT USAGE ON SCHEMA device TO grafana_ro;
 GRANT SELECT ON ALL TABLES IN SCHEMA device TO grafana_ro;
-GRANT SELECT ON device.weekly_reports_sliding TO grafana_ro;
 
 ALTER DEFAULT PRIVILEGES
     IN SCHEMA device
@@ -106,8 +104,9 @@ CREATE TABLE device.smart_sata (
     ts              TIMESTAMP,
     attr_id         INTEGER,
     attr_name       VARCHAR(128),
-    attr_val        BIGINT,
-    attr_val_str    VARCHAR(128),
+    attr_raw        BIGINT,
+    attr_raw_str    VARCHAR(128),
+    attr_norm       BIGINT,
     attr_worst      BIGINT
 );
 
@@ -165,6 +164,8 @@ CREATE MATERIALIZED VIEW device.weekly_reports_sliding AS
 
 -- Run this command as user 'postgres', since user 'telemetry' is not part of 'grafana' role.
 ALTER MATERIALIZED VIEW device.weekly_reports_sliding OWNER TO grafana;
+
+GRANT SELECT ON device.weekly_reports_sliding TO grafana_ro;
 
 -- Holds (vendor, model) mappings results - for debugging purposes only.
 -- It can be removed at some point.
