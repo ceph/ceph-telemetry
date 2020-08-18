@@ -40,7 +40,7 @@ def get_prediction_input(conn, device_id):
                 device_smart[date] = {}
                 device_smart[date]["attr"] = {}
 
-            device_smart[date]["attr"][s["attr_id"]] = {"name" : s["attr_name"], "val_raw" : s["attr_val"]}
+            device_smart[date]["attr"][s["attr_id"]] = {"name" : s["attr_name"], "val_raw" : s["attr_raw"], "val_norm": s["attr_norm"]}
         smart_cur.close()
 
     rep_cur.close()
@@ -67,7 +67,8 @@ def main():
     if sys.argv[1:]:
         device_id = sys.argv[1]
     else:
-        device_id = 1669 # a default for testing now
+        print(f"Usage: {sys.argv[0]} <device_id>", file=sys.stderr)
+        sys.exit()
     smart_data = get_prediction_input(conn, device_id)
     smart_data_json = json.dumps(smart_data, indent=4, sort_keys=True)
     #print(smart_data_json)
