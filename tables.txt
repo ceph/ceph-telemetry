@@ -1,5 +1,6 @@
 
 CREATE TABLE report (
+       id serial NOT NULL UNIQUE,
        cluster_id VARCHAR(50),
        report_stamp TIMESTAMP,
        report TEXT,
@@ -7,6 +8,7 @@ CREATE TABLE report (
 );
 
 CREATE TABLE device_report (
+       id serial NOT NULL UNIQUE,
        device_id VARCHAR(128),
        report_stamp TIMESTAMP,
        report TEXT,
