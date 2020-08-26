@@ -1,5 +1,6 @@
 {
     "capacity_bytes": 1920383410176,
+    "model": "SSD_883",
     "smart_data": {
         "2020-07-07 00:03:04": {
             "attr": {
@@ -1609,5 +1610,6 @@
                 }
             }
         }
-    }
+    },
+    "vendor": "samsung"
 }

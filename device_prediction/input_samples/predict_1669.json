@@ -1,5 +1,6 @@
 {
     "capacity_bytes": 8001563222016,
+    "model": "ST8000NM0045-1RL112",
     "smart_data": {
         "2020-07-07 00:12:38": {
             "attr": {
@@ -1489,5 +1490,6 @@
                 }
             }
         }
-    }
+    },
+    "vendor": "seagate"
 }

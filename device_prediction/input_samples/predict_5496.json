@@ -1,5 +1,6 @@
 {
     "capacity_bytes": 1000204886016,
+    "model": "WD1000FYPS-01ZKB1",
     "smart_data": {
         "2020-07-07 00:08:54": {
             "attr": {
@@ -1069,5 +1070,6 @@
                 }
             }
         }
-    }
+    },
+    "vendor": "wdc"
 }

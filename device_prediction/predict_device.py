@@ -19,16 +19,20 @@ DSN = '/opt/telemetry/grafana.dsn'
 def get_prediction_input(conn, device_id):
     prediction_input = {}
 
-    # Get device's capacity
+    # Get device's vendor, model, capacity:
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("""SELECT device.spec.capacity
+    cur.execute("""SELECT device.spec.vendor,
+                          device.spec.model,
+                          device.spec.capacity
                    FROM device.device
-                   INNER join device.spec on device.device.spec_id = device.spec.id
+                   INNER JOIN device.spec ON device.device.spec_id = device.spec.id
                    WHERE device.device.id = %s
                 """, (device_id,))
 
-    capacity = cur.fetchone();
-    prediction_input['capacity_bytes'] = capacity[0] if capacity else None
+    res = cur.fetchone();
+    prediction_input['vendor'] = res['vendor'] if res else None
+    prediction_input['model'] = res['model'] if res else None
+    prediction_input['capacity_bytes'] = res['capacity'] if res else None
 
     # Get device's SMART attributes
     device_smart = {}
