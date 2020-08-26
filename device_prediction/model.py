@@ -61,11 +61,13 @@ class RHDiskFailurePredictor(object):
 
     # model name prefixes to identify vendor
     MANUFACTURER_MODELNAME_PREFIXES = {
+        "WD": "WDC",           # for cases like "WDxxx"
         "WDC": "WDC",
         "Toshiba": "Toshiba",  # for cases like "Toshiba xxx"
         "TOSHIBA": "Toshiba",  # for cases like "TOSHIBA xxx"
         "toshiba": "Toshiba",  # for cases like "toshiba xxx"
-        "S": "Seagate",        # for cases like "STxxxx" and "Seagate BarraCuda ZAxxx"
+        "ST": "Seagate",       # for cases like "STxxxx"
+        "Seagate": "Seagate",  # for cases like "Seagate BarraCuda ZAxxx"
         "ZA": "Seagate",       # for cases like "ZAxxxx"
         "Hitachi": "Hitachi",
         "HGST": "HGST",
@@ -230,20 +232,20 @@ class RHDiskFailurePredictor(object):
 
     def predict(self, disk_days):
         # get manufacturer preferably as a smartctl attribute
-        manufacturer = disk_days.get("vendor", disk_days.get("nvme_vendor", None))
+        manufacturer = disk_days.get("vendor", None)
 
         # if not available then try to infer using model name
         if manufacturer is None:
             RHDiskFailurePredictor.LOGGER.debug(
                 '"vendor" field not found in smartctl output. Will try to infer manufacturer from model name.'
             )
-            if "model_name" not in disk_days.keys():
+            if "model" not in disk_days.keys():
                 RHDiskFailurePredictor.LOGGER.debug(
-                    '"vendor" field not found in smartctl output. Will try to infer manufacturer from model name.'
+                    '"model" field not found in smartctl output.'
                 )
             else:
                 manufacturer = RHDiskFailurePredictor.__get_manufacturer(
-                    disk_days["model_name"]
+                    disk_days["model"]
                 )
 
         # print error message and return Unknown
