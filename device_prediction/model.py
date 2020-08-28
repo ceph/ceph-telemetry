@@ -303,6 +303,7 @@ def main():
     args = parser.parse_args()
 
     inp_json = sys.stdin.read()
+    device_data = json.loads(inp_json)
     # fname = 'input_samples/predict_1669.json'
     # with open(fname, 'rb') as f:
     #     device_data = json.load(f)
