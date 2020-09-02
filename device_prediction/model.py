@@ -20,7 +20,7 @@ An example code is as follows:
 >>> model = disk_failure_predictor.RHDiskFailurePredictor()
 >>> status = model.initialize("./models")
 >>> if status:
->>>     model.predict(disk_days)
+>>>     model.predict(device_data)
 'Bad'
 """
 import os
@@ -111,11 +111,11 @@ class RHDiskFailurePredictor(object):
 
         self.model_dirpath = model_dirpath
 
-    def __preprocess(self, disk_days, manufacturer):
+    def __preprocess(self, device_data, manufacturer):
         """Scales and transforms input dataframe to feed it to prediction model
 
         Arguments:
-            disk_days {list} -- list in which each element is a dictionary with key,val
+            device_data {list} -- list in which each element is a dictionary with key,val
                                 as feature name,value respectively.
                                 e.g.[{'smart_1_raw': 0, 'user_capacity': 512 ...}, ...]
             manufacturer {str} -- manufacturer of the hard drive
@@ -126,7 +126,8 @@ class RHDiskFailurePredictor(object):
         """
         # get the attributes that were used to train model for current manufacturer
         try:
-            model_smart_attr = self.model_context[manufacturer]
+            model_features = self.model_context[manufacturer]
+            model_smart_attr = [i for i in model_features if 'smart' in i]
         except KeyError as e:
             RHDiskFailurePredictor.LOGGER.debug(
                 "No context (SMART attributes on which model has been trained) found for manufacturer: {}".format(
@@ -135,75 +136,59 @@ class RHDiskFailurePredictor(object):
             )
             return None
 
-        # from the input json construct a list such that, each element is
-        # a tuple representing SMART data from one day e.g. (60, 100, 500.2)
-        days = sorted(disk_days['smart_data'].keys())
-        values = []
-        for day in days:
-            curr_day_values = []
-            for attr in model_smart_attr:
+        # assuming capacity does not change across days
+        user_capacity = device_data['capacity_bytes']
+
+        # what timestamps do we have the data from
+        days = sorted(device_data['smart_data'].keys())
+
+        # (n,d) shaped array to hold smart attribute values for device
+        # where n is the number of days and d is number of SMART attributes
+        device_smart_attr_values = np.empty(
+            shape=(len(days), len(model_smart_attr))
+        )
+        for di, day in enumerate(days):
+            for ai, attr in enumerate(model_smart_attr):
                 if 'raw' in attr:
-                    curr_day_values.append(
-                        disk_days['smart_data'][day]['attr'][attr.split('_')[1]]['val_raw']
-                    )
+                    device_smart_attr_values[di][ai] = device_data['smart_data'][day]['attr'][attr.split('_')[1]]['val_raw']
                 elif 'normalized' in attr:
-                    curr_day_values.append(
-                        disk_days['smart_data'][day]['attr'][attr.split('_')[1]]['val_norm']
-                    )
+                    device_smart_attr_values[di][ai] = device_data['smart_data'][day]['attr'][attr.split('_')[1]]['val_norm']
                 elif 'user_capacity' in attr:
-                    curr_day_values.append(
-                        disk_days['capacity_bytes']
-                    )
+                    continue
                 else:
                     raise ValueError('Unknown attribute found in config')
-            values.append(
-                curr_day_values
-            )
-
-        # create a numpy structured array i.e. include "column names" and
-        # "column dtypes" for the input matrix `values`
-        try:
-            struc_dtypes = [(attr, np.float64) for attr in model_smart_attr]
-            disk_days_sa = np.array(values, dtype=struc_dtypes)
-        except KeyError as e:
-            RHDiskFailurePredictor.LOGGER.debug(
-                "Mismatch in SMART attributes used to train model and SMART attributes available"
-            )
-            return None
-
-        # view structured array as 2d array for applying rolling window transforms
-        # do not include capacity_bytes in this. only use smart_attrs
-        disk_days_attrs = disk_days_sa[[attr for attr in model_smart_attr if 'smart_' in attr]]\
-                            .view(np.float64).reshape(disk_days_sa.shape + (-1,))
 
         # featurize n (6 to 12) days data - mean,std,coefficient of variation
-        # current model is trained on 6 days of data because that is what will be
-        # available at runtime
 
         # rolling time window interval size in days
         roll_window_size = 6
 
-        # rolling means generator
-        gen = (disk_days_attrs[i: i + roll_window_size, ...].mean(axis=0) \
-                for i in range(0, disk_days_attrs.shape[0] - roll_window_size + 1))
-        means = np.vstack(gen)
+        # extract rolling mean and std for SMART values
+        means = np.empty(shape=(len(days) - roll_window_size + 1, device_smart_attr_values.shape[1]))
+        stds = np.empty(shape=(len(days) - roll_window_size + 1, device_smart_attr_values.shape[1]))
 
-        # rolling stds generator
-        gen = (disk_days_attrs[i: i + roll_window_size, ...].std(axis=0, ddof=1) \
-                for i in range(0, disk_days_attrs.shape[0] - roll_window_size + 1))
-        stds = np.vstack(gen)
-
-        # coefficient of variation
+        for i in range(0, device_smart_attr_values.shape[0] - roll_window_size + 1):
+            means[i, :] = device_smart_attr_values[i: i+roll_window_size, :].mean(axis=0)
+            stds[i, :] = device_smart_attr_values[i: i+roll_window_size, :].std(axis=0, ddof=1)
+            
+        # calculate coefficient of variation
         cvs = stds / means
         cvs[np.isnan(cvs)] = 0
 
         # combine all extracted features
-        featurized = np.hstack((
-                                means,
+        if 'user_capacity' in model_features:
+            featurized = np.hstack((
+                means,
+                stds, 
                                 stds,
+                stds, 
+                cvs, 
                                 cvs,
-                                disk_days_sa['user_capacity'][: disk_days_attrs.shape[0] - roll_window_size + 1].reshape(-1, 1)
-                                ))
+                cvs, 
+                np.repeat(user_capacity, len(days) - roll_window_size + 1).reshape(-1, 1)
+            ))
+        else:
+            featurized = np.hstack((means, stds, cvs))
 
         # scale features
         scaler_path = os.path.join(self.model_dirpath, manufacturer + "_scaler.pkl")
@@ -230,22 +215,22 @@ class RHDiskFailurePredictor(object):
             "Could not infer manufacturer from model name {}".format(model_name)
         )
 
-    def predict(self, disk_days):
+    def predict(self, device_data):
         # get manufacturer preferably as a smartctl attribute
-        manufacturer = disk_days.get("vendor", None)
+        manufacturer = device_data.get("vendor", None)
 
         # if not available then try to infer using model name
         if manufacturer is None:
             RHDiskFailurePredictor.LOGGER.debug(
                 '"vendor" field not found in smartctl output. Will try to infer manufacturer from model name.'
             )
-            if "model" not in disk_days.keys():
+            if "model" not in device_data.keys():
                 RHDiskFailurePredictor.LOGGER.debug(
                     '"model" field not found in smartctl output.'
                 )
             else:
                 manufacturer = RHDiskFailurePredictor.__get_manufacturer(
-                    disk_days["model"]
+                    device_data["model"]
                 )
 
         # print error message and return Unknown
@@ -261,7 +246,7 @@ class RHDiskFailurePredictor(object):
             manufacturer = manufacturer.lower()
 
         # preprocess for feeding to model
-        preprocessed_data = self.__preprocess(disk_days, manufacturer)
+        preprocessed_data = self.__preprocess(device_data, manufacturer)
         if preprocessed_data is None:
             return RHDiskFailurePredictor.PREDICTION_CLASSES[-1]
 
