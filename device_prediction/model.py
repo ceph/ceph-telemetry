@@ -179,13 +179,9 @@ class RHDiskFailurePredictor(object):
         if 'user_capacity' in model_features:
             featurized = np.hstack((
                 means,
-                stds, 
-                                stds,
-                stds, 
-                cvs, 
-                                cvs,
-                cvs, 
-                np.repeat(user_capacity, len(days) - roll_window_size + 1).reshape(-1, 1)
+                stds,
+                cvs,
+                np.repeat(user_capacity, len(days) - roll_window_size + 1).reshape(-1, 1),
             ))
         else:
             featurized = np.hstack((means, stds, cvs))
