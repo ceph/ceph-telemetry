@@ -172,8 +172,7 @@ class RHDiskFailurePredictor(object):
             stds[i, :] = device_smart_attr_values[i: i+roll_window_size, :].std(axis=0, ddof=1)
             
         # calculate coefficient of variation
-        cvs = stds / means
-        cvs[np.isnan(cvs)] = 0
+        cvs = np.divide(stds, means, out=np.zeros_like(stds), where=means!=0)
 
         # combine all extracted features
         if 'user_capacity' in model_features:
