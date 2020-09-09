@@ -257,45 +257,19 @@ class RHDiskFailurePredictor(object):
         return RHDiskFailurePredictor.PREDICTION_CLASSES[pred_class_id]
 
 
-class PreditionResult(Enum):
-    GOOD = 0
-    FAIL = 1
-
-def simple_prediction(device_data):
-    if len(device_data) == 0:
-        return "Invalid prediction input"
-    # Get most recent report
-    report_date = sorted(device_data['smart_data'].keys(), reverse=True)[0]
-    report = device_data['smart_data'][report_date]['attr']
-    if s_Reallocated_Sector_Count in report and report[s_Reallocated_Sector_Count]['val_raw'] > 0:
-        return PreditionResult.FAIL
-    return PreditionResult.GOOD
-
 def main():
-    # args to decide which model to use for prediction
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--predictor-model', '--pm',
-        type=str,
-        choices=['redhat', 'simple'],
-        default='redhat',
-    )
-    args = parser.parse_args()
-
     inp_json = sys.stdin.read()
     device_data = json.loads(inp_json)
 
-    if args.predictor_model == 'simple':
-        prediction_result = simple_prediction(device_data)
-    elif args.predictor_model == 'redhat':
-        # init model
-        predictor = RHDiskFailurePredictor()
-        predictor.initialize("{}/models/{}".format(get_diskfailurepredictor_path(), args.predictor_model))
+    # init model
+    predictor = RHDiskFailurePredictor()
+    predictor.initialize("{}/models/redhat".format(get_diskfailurepredictor_path()))
 
-        # make prediction
-        prediction_result = predictor.predict(device_data)
-    else:
-        raise ValueError(f'Got invalid input for `--predictor-model`: {args.predictor_model}')
+    # make prediction
+    prediction_result = predictor.predict(device_data)
+
+    # need to send result to stdout
+    print(prediction_result)
 
 if __name__ == '__main__':
     sys.exit(main())
