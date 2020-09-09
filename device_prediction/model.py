@@ -6,8 +6,6 @@ This classes defined here provide the disk failure prediction module.
 RHDiskFailurePredictor uses the models developed at the AICoE in the
 Office of the CTO at Red Hat. These models were built using the open
 source Backblaze SMART metrics dataset.
-PSDiskFailurePredictor uses the models developed by ProphetStor as an
-example.
 
 An instance of the predictor is initialized by providing the path to trained
 models. Then, to predict hard drive health and deduce time to failure, the
