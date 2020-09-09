@@ -277,18 +277,15 @@ def main():
     parser.add_argument(
         '--predictor-model', '--pm',
         type=str,
-        choices=['redhat', 'prophetstor', 'dummy'],
+        choices=['redhat', 'simple'],
         default='redhat',
     )
     args = parser.parse_args()
 
     inp_json = sys.stdin.read()
     device_data = json.loads(inp_json)
-    # fname = 'input_samples/predict_1669.json'
-    # with open(fname, 'rb') as f:
-    #     device_data = json.load(f)
 
-    if args.predictor_model == 'dummy':
+    if args.predictor_model == 'simple':
         prediction_result = simple_prediction(device_data)
     elif args.predictor_model == 'redhat':
         # init model
@@ -297,10 +294,8 @@ def main():
 
         # make prediction
         prediction_result = predictor.predict(device_data)
-    elif args.predictor_model == 'prophetstor':
-        raise NotImplementedError("ProphetStor sample model has not been updated for use on Grafana dashboards")
-
-    #print(prediction_result)
+    else:
+        raise ValueError(f'Got invalid input for `--predictor-model`: {args.predictor_model}')
 
 if __name__ == '__main__':
     sys.exit(main())
