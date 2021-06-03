@@ -48,7 +48,7 @@ def main():
 
     # clear entire table
     if not args.debug:
-        cur.execute('delete from version_history')
+        cur.execute('delete from version_history_all_clusters')
 
     prev_date = None
     end_date = date.today()
