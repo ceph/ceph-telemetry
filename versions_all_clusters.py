@@ -72,9 +72,10 @@ def main():
             report = json.loads(report)
             for (entity_type, info) in report.get('metadata', {}).items():
                 for (version, num) in info.get('ceph_version', {}).items():
-                    version = re.match(
-                        'ceph version v*([0-9.]+|Dev).*', version).group(1)
-                    versmap[version] += num
+                    mo = re.match('ceph version v*([0-9.]+|Dev).*', version)
+                    if mo:
+                        version = mo.group(1)
+                        versmap[version] += num
 
         for vers, num in versmap.items():
             if args.debug:
