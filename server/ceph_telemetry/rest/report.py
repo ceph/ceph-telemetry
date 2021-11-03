@@ -5,6 +5,15 @@ import hashlib
 import json
 import copy
 import psycopg2
+import logging
+
+MAX_REPORT_SIZE = 100000000  # 100 MB
+LOG_FILE = f"/opt/telemetry/log/report_ep.log"
+
+logging.basicConfig(filename=LOG_FILE,
+                    level=logging.INFO,
+                    format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 class Report(Resource):
     def __init__(self, report=None):
@@ -77,7 +86,12 @@ class Report(Resource):
         self._obfuscate_entity_name()
 
         self.post_to_file()
-        self.post_to_postgres()
+
+        report_size = len(self.report['report'])
+        if report_size < MAX_REPORT_SIZE:
+            self.post_to_postgres()
+        else:
+            logging.warning(f"report_id {self._report_id()} was not posted to postgres due to its size ({report_size} bytes)")
 
         return jsonify(status=True)
 
