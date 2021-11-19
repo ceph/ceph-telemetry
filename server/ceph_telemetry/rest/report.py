@@ -78,6 +78,9 @@ class Report(Resource):
 
     def put(self):
         self.report = request.get_json(force=True)
+        # simple sanity check that this json is not totally invalid
+        if 'report_id' not in self.report or 'report_timestamp' not in self.report:
+            return
 
         # clean up
         self._add_timestamp()
@@ -87,7 +90,7 @@ class Report(Resource):
 
         self.post_to_file()
 
-        report_size = len(self.report['report'])
+        report_size = len(json.dumps(self.report))
         if report_size < MAX_REPORT_SIZE:
             self.post_to_postgres()
         else:
