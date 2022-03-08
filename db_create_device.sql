@@ -162,9 +162,6 @@ CREATE MATERIALIZED VIEW device.weekly_reports_sliding AS
         device_id,
         d.ts DESC;
 
--- Run this command as user 'postgres', since user 'telemetry' is not part of 'grafana' role.
-ALTER MATERIALIZED VIEW device.weekly_reports_sliding OWNER TO grafana;
-
 GRANT SELECT ON device.weekly_reports_sliding TO grafana_ro;
 
 -- Holds (vendor, model) mappings results - for debugging purposes only.

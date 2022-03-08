@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: <postgres_password>
+
+    volumes:
+      - <postgres_host_storage_path>:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+  grafana:
+    image: grafana/grafana-oss
+    hostname: <telemetry_server_FQDN>
+
+    volumes:
+      - /opt/telemetry_grafana/var/lib/grafana:/var/lib/grafana
+      - /opt/telemetry_grafana/etc/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - /opt/telemetry_grafana/etc/grafana_dashboards:/etc/grafana_dashboards
+
+    ports:
+      - "3000:3000"

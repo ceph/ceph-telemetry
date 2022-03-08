@@ -1,0 +1,813 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "icon": "dashboard",
+      "tags": [],
+      "title": "Ceph Telemetry",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/-GcbjrXZz/telemetry?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "description": "All clusters reporting during the last 7 days that enabled leaderboard",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_id"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "displayName",
+                "value": "Cluster ID"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_used_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Used Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "osd_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "OSD Count"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "id_internal"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "ID - for internal use"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "show details",
+                    "url": "/d/9pUyOJrWk/cluster-private?orgId=1&var-c_id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with leaderboard_clusters as (\n\t-- get all clusters that opted in to leaderboard\n\tselect \n\t\tr.id report_id,\n\t\treplace(r.report, E'\\\\u0000', ' ')::jsonb#>'{organization}' organization,\n\t\treplace(r.report, E'\\\\u0000', ' ')::jsonb#>'{description}' description,\n\t\treplace(r.report, E'\\\\u0000', ' ')::jsonb#>'{contact}' contact\n\t\t--replace(r.report, E'\\\\u0000', ' ')::jsonb ? 'leaderboard', \n\t\t--cluster_id,\n\t\t--r.report_stamp \n\tfrom public.report r\n\t-- we join the materialized view since not all clusters report daily, and mv normalizes this\n\tinner join grafana.weekly_reports_sliding w on r.id = w.report_id\n\twhere\n\t--  replace(report, '\\\\u0000', ' ')::jsonb ? 'leaderboard'\n\t    replace(r.report, E'\\\\u0000', ' ')::jsonb#>'{leaderboard}' != 'false'\n\tand\n\t\tdate_trunc('day', daily_window) = date_trunc('day', now() - interval '1 day')\n\t--date_trunc('day', daily_window) = '2021-06-14'\n)\nselect\n  cluster_id id_internal,\n\tsubstring(ts.cluster_id, 1, 8) cluster_id,\n\tage(date_trunc('day', ts.created)) as \"Age\",\n\tround(ts.total_bytes / POWER(1024.0, 4)) total_tb, \n\tround(ts.total_used_bytes / POWER(1024.0, 4)) total_used_tb,\n\tts.osd_count,\n\tlc.organization as \"Organization\",\n\tlc.description as \"Description\",\n\tlc.contact as \"Contact\"\n\t--* \nfrom grafana.ts_cluster ts,\n\t leaderboard_clusters lc\nwhere \n--\tts.cluster_id = lc.cluster_id\n--and \n\tts.report_id = lc.report_id\nand ts.osd_count is not null -- some clusters report empty telemetry\norder by total_tb desc\n;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Leaderboard opted-in - last week",
+      "type": "table"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 6,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "description": "All clusters reporting during the last 7 days that enabled 'ident' channel, but not necessarily enabled 'leaderboard'",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_id"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "displayName",
+                "value": "Cluster ID"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_used_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Used Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "osd_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "OSD Count"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "id_internal"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "ID - for internal use"
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "show details",
+                    "url": "/d/9pUyOJrWk/cluster-private?orgId=1&var-c_id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ID - for internal use"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 352
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 3,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- leaderboard for all clusters enabled 'ident' channel, but not necessarily 'leadeboard':\nwith ident_clusters as (\n\tselect ts.report_id, ts.cluster_id--, array_agg(ts)\n\tfrom grafana.ts_cluster ts\n\tinner join grafana.weekly_reports_sliding w on ts.report_id = w.report_id\n\twhere channel_ident\n\tand date_trunc('day', w.daily_window) = date_trunc('day', now() - interval '1 day')\n\t--and ts.total_bytes > 0\n\t--ts > '2021-06-01'\n\t--group by cluster_id\n\t)\nselect --ic.report_id, \n  ic.cluster_id id_internal,\n\tsubstring(tsc.cluster_id, 1, 8) cluster_id,\n\tround(tsc.total_bytes / POWER(1024.0, 4)) total_tb, \n\tround(tsc.total_used_bytes / POWER(1024.0, 4)) total_used_tb,\n\ttsc.osd_count--,\nfrom ident_clusters ic\ninner join grafana.ts_cluster tsc \non ic.report_id = tsc.report_id\n--where\n--    r.report_stamp > '2021-06-10'\nwhere\n\ttsc.osd_count is not null -- some clusters report empty telemetry\nand round(tsc.total_bytes / POWER(1024.0, 4)) > 0\norder by total_tb desc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Ident channel opted-in - last week",
+      "type": "table"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "description": "All clusters reporting during the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_id"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "displayName",
+                "value": "Cluster ID"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_used_tb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Used Capacity (TiB)"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "osd_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "OSD Count"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "id_internal"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "ID - for internal use"
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "show details",
+                    "url": "/d/9pUyOJrWk/cluster-private?orgId=1&var-c_id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ID - for internal use"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 352
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 7,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- leaderboard for all clusters:\nwith all_clusters as (\n\tselect ts.report_id, ts.cluster_id--, array_agg(ts)\n\tfrom grafana.ts_cluster ts\n\tinner join grafana.weekly_reports_sliding w on ts.report_id = w.report_id\n\twhere --channel_ident\n\t--and \n\t  date_trunc('day', w.daily_window) = date_trunc('day', now() - interval '1 day')\n\t--and ts.total_bytes > 0\n\t--ts > '2021-06-01'\n\t--group by cluster_id\n\t)\nselect --ac.report_id, \n  ac.cluster_id id_internal,\n\tsubstring(tsc.cluster_id, 1, 8) cluster_id,\n\tround(tsc.total_bytes / POWER(1024.0, 4)) total_tb, \n\tround(tsc.total_used_bytes / POWER(1024.0, 4)) total_used_tb,\n\ttsc.osd_count--,\nfrom all_clusters ac\ninner join grafana.ts_cluster tsc \non ac.report_id = tsc.report_id\n--where\n--    r.report_stamp > '2021-06-10'\nwhere\n\ttsc.osd_count is not null -- some clusters report empty telemetry\nand round(tsc.total_bytes / POWER(1024.0, 4)) > 0\norder by total_tb desc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "All clusters- last week",
+      "type": "table"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 5,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 9,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Leaderboard",
+  "uid": "8zJ68iWnk",
+  "version": 6
+}

@@ -1,0 +1,148 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "description": "All clusters that ever reported a pool with a CLAY EC plugin.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_id"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show details",
+                    "url": "/d/9pUyOJrWk/cluster-private?orgId=1&var-c_id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- CLAY Profile\nwith clay_cluster as (\n\tselect gc.cluster_id, count(gc.*) as \"reports_with_clay_plugin_count\", \n\t\tmax(gc.ts) as \"latest_report\", max(gc.report_id) as \"max_report\"\n\t--\tarray_agg(distinct(replace(pr.report, E'\\\\u0000', ' ')::jsonb#>'{contact}')) as \"contact\"\n\tfrom \n\t\t(select report_id from grafana.pool where ec_plugin = 'clay' group by report_id) clay\n\tinner join grafana.ts_cluster gc on clay.report_id = gc.report_id\n\t--inner join public.report pr on gc.report_id = pr.id \n\tgroup by gc.cluster_id\n)\nselect\n\tclay_cluster.cluster_id,\n\tclay_cluster.reports_with_clay_plugin_count,\n  clay_cluster.latest_report,\n\treplace(pr.report, E'\\\\u0000', ' ')::jsonb#>'{organization}' as \"organization\",\n\treplace(pr.report, E'\\\\u0000', ' ')::jsonb#>'{description}' as \"description\",\n\treplace(pr.report, E'\\\\u0000', ' ')::jsonb#>'{contact}' as \"contact\"\nfrom clay_cluster\ninner join public.report pr on clay_cluster.max_report = pr.id\n;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "All Clusters reporting CLAY Plugin",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "EC CLAY Plugin",
+  "uid": "zAltsvHnk",
+  "version": 3
+}

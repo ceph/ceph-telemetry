@@ -1,0 +1,2150 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_POSTGRESQL",
+      "label": "PostgreSQL",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "postgres",
+      "pluginName": "PostgreSQL"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph (old)",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "heatmap",
+      "name": "Heatmap",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1646868193703,
+  "links": [
+    {
+      "$$hashKey": "object:704",
+      "icon": "dashboard",
+      "tags": [],
+      "title": "Devices Telemetry",
+      "type": "link",
+      "url": "/d/OVxgLWiGz/main?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": null,
+      "description": "",
+      "gridPos": {
+        "h": 5,
+        "w": 10,
+        "x": 0,
+        "y": 0
+      },
+      "id": 35,
+      "options": {
+        "content": "<div style=\"padding-top:20px\">Dropdown usage:</div>\n<div style=\"color:#32d1df\">\nThese dropdowns affect 'Version by Cluster Count' and 'Version by Daemon Count' charts below.\n<br>Stats can be displayed by either major or minor versions. \n<br>'Major' dropdown filters the options of 'Minor' dropdown. \n<br>Stats by either 'Major' or 'Minor' dropdowns are also filtered by 'Daemons' dropdown.\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.1.2",
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 41,
+      "options": {
+        "content": "<div style=\"padding-top:50px;font-size:30px;\">\n  <a href=\"/d/8zJ68iWnk/leaderboard?orgId=1\" style=\"color:#32d1df\">\n      Leaderboard\n  </a>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 18,
+        "y": 0
+      },
+      "id": 40,
+      "options": {
+        "content": "<div style=\"padding-top:50px;font-size:30px;\">\n  <a href=\"\n  /d/OVxgLWiGz/\" style=\"color:#32d1df\">\n      Devices Dashboard\n  </a>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "description": "Counting all OSDs from clusters reporting during the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      },
+      "id": 15,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select sum(c.osd_count) as \"OSD Count\"\nfrom grafana.weekly_reports_sliding w\ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere daily_window >= CURRENT_DATE - INTERVAL '1' DAY\ngroup by daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "OSD Count",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "description": "Counting all clusters reporting during the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      },
+      "id": 14,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- no need to count distinct since cluster_id is already distinct per day\nselect count(c.cluster_id) total\nfrom grafana.weekly_reports_sliding w\ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere daily_window >= CURRENT_DATE - INTERVAL '1' DAY\ngroup by daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Active Clusters",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "description": "Counting capacity of all clusters reporting during the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select sum(c.TOTAL_BYTES) total\nfrom grafana.weekly_reports_sliding w\ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere daily_window >= CURRENT_DATE - INTERVAL '1' DAY\ngroup by daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total Capacity",
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Takes the latest report of each cluster per week, and counts the versions by cluster count:\nEach cluster contributes '1', regardless of number of daemons:\nIf 2/200 daemons are v1 and 198 v2, then we add in .01 for v1; and .99 for v2.\nDisplays only the checked options from 'Major' or 'Minor' dropdowns on the top left corner of this page.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "12"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Luminous"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "13"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mimic"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "14"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Nautilus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "15"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Octopus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "16"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pacific"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "17"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quincy"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "hiddenSeries": false,
+      "id": 28,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH\n-- Get the matching metadata stats, per the above report (latest, weekly)\nweekly_metadata AS (\n  SELECT\n    daily_window, grafana.metadata.*\n  FROM\n    grafana.metadata\n  INNER JOIN\n    grafana.WEEKLY_REPORTS_SLIDING w ON w.report_id = grafana.metadata.report_id\n  WHERE\n    attr='ceph_version_norm'\n),\n-- This retrieves total daemons per report (which is of a cluster, per week)\nweekly_cluster_daemons AS ( \n  SELECT report_id, sum(total) sum_daemons\n  FROM grafana.metadata\n  WHERE attr='ceph_version_norm'\n  and entity in ($daemons)\n  GROUP BY report_id\n)\nselect\n  $__timeGroup(wm.daily_window, '1d', 0),\n  -- daily_window as time, \n  CASE\n \tWHEN '$display' = 'Major' then\n          SPLIT_PART(value, '.', 1)\n    ELSE value\n  END as metric,\n  --wm.value as metric, \n  sum(wm.total / CAST(cd.sum_daemons AS real))  \nfrom weekly_metadata wm\ninner join weekly_cluster_daemons cd \nON wm.report_id = cd.report_id\nwhere $__timeFilter(daily_window) \nand case when '$display'='Major' then\n            SPLIT_PART(value, '.', 1)\n          else value end\n          in\n          (select unnest(case when '$display'='Major' then Array[$major]\nelse Array[$minor] end))\n-- and value in ($minor) \nand entity in ($daemons)\nGROUP by daily_window, 2\norder by daily_window, 2;\n-- order by 2, daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Version by Cluster Count",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:209",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:210",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": null,
+      "description": "Takes the latest report of each cluster per week, and counts the versions by daemons. Displays only the checked options from 'Major' or 'Minor' dropdowns on the top left corner of this page.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "12"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Luminous"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "13"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mimic"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "14"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Nautilus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "15"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Octopus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "16"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pacific"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "17"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quincy"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "hiddenSeries": false,
+      "id": 26,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:137"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select  $__timeGroup(w.daily_window, '1d', 0),\n        --w.daily_window as time,\n        --value as metric,\n        CASE\n            WHEN '$display' = 'Major' then\n              SPLIT_PART(value, '.', 1) \n            else value\n        end as metric,\n        sum(total)\nfrom grafana.weekly_reports_sliding w\ninner join\n        grafana.metadata\n        on w.report_id = grafana.metadata.report_id\nwhere \n    attr='ceph_version_norm'\n    and $__timeFilter(w.daily_window)\n    --and value in ($major)\n    and case when '$display'='Major' then\n            SPLIT_PART(value, '.', 1)\n          else value end\n          in\n          (select unnest(case when '$display'='Major' then Array[$major]\n    else Array[$minor] end))\n    and entity in ($daemons)\ngroup by w.daily_window, 2\norder by w.daily_window, 2;\n-- order by 2, w.daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Version by Daemon Count",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:306",
+          "decimals": null,
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:307",
+          "decimals": null,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Every day shows a count of all distinct clusters reporting over a past week.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "hiddenSeries": false,
+      "id": 21,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select daily_window as time, count(*) as \"Active Clusters\"\nfrom grafana.weekly_reports_sliding w\ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;\n\n\n/*\n-- weekly_reports_sliding: returns a table with rows of \"days\" (acutally called ts),\n-- and for each \"days\" returns all the reports of all clusters\n-- that reported in the week preceeding the day, but only 1 report per cluster - the newest.\nwith weekly_reports_sliding as (\n  select distinct on(days, cluster_id) days ts, report_id \n  -- generate_series generates a table with a single column 'days' (since 'day' is a reserved keyword) \n  -- and 365 rows;\n  from grafana.ts_cluster c, GENERATE_SERIES(now()::date - 365, now()::date, interval '1' day) days\n  where c.ts between days - interval '7' day AND days + interval '1' day\n  order by days, cluster_id, ts desc\n)\n-- clusters reporting\nselect ts as time, count(*) from weekly_reports_sliding\ngroup by ts\norder by ts;\n*/",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Active Clusters by a Daily Sliding Window of a Week",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:344",
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:345",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "OSD count": "light-green"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Every day shows an OSD count of all distinct clusters reporting over a past week.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n        daily_window as time,\n        sum(c.osd_count) as \"OSD count\"\nFROM\n        grafana.weekly_reports_sliding w\nINNER JOIN \n        grafana.ts_cluster c \n        ON \n        w.report_id = c.report_id\nGROUP BY \n        daily_window\nORDER BY \n        daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "OSD Count by a Daily Sliding Window of a Week",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Every day shows a total bytes count of all distinct clusters reporting over a past week.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "hiddenSeries": false,
+      "id": 19,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select daily_window as time, sum(c.TOTAL_BYTES) as \"Total\", sum(c.TOTAL_USED_BYTES) as \"Used\"\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Total Capacity by a Daily Sliding Window of a Week",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Every day shows a total bytes count of all distinct clusters reporting over a past week. We aggregate the number of total bytes according to the osd versions.",
+      "fieldConfig": {
+        "defaults": {
+          "links": [],
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "12"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Luminous"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "13"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mimic"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "14"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Nautilus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "15"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Octopus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "16"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pacific"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "17"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quincy"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 78
+      },
+      "hiddenSeries": false,
+      "id": 42,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with cpo as ( --capacity_per_osd\n\tselect\n\t  --$__timeGroup(w.daily_window, '1d', 0),\n\t\tw.daily_window, -- as time,\n\t\tc.report_id,\n\t\t--c.osd_count,\n\t\tc.TOTAL_BYTES / c.osd_count::real as \"total_bytes_per_osd\"\n\t\t--, c.TOTAL_USED_BYTES / c.osd_count::real as \"total_used_bytes_per_osd\"\n\t\t--sum(c.TOTAL_BYTES) as \"Total\",\n\t\t--sum(c.TOTAL_USED_BYTES) as \"Used\"\n\t\t--c.TOTAL_BYTES as \"Total\",\n\t\t--c.TOTAL_USED_BYTES as \"Used\"\n\tfrom grafana.weekly_reports_sliding w \n\tinner join grafana.ts_cluster c on w.report_id = c.report_id\n\twhere osd_count > 0\n\t--and c.TOTAL_BYTES > 0\n\t--group by daily_window\n\t--order by daily_window\n)\nselect --*,\n\t--cpo.daily_window as time,\n\t$__timeGroup(cpo.daily_window, '1d', 0),\n\t--gm.value as metric,\n\tCASE\n    WHEN '$display' = 'Major' then\n      SPLIT_PART(gm.value, '.', 1) \n    else gm.value\n  end as metric,\n\t-- gm.total is the total number of daemons with that attribute\n\tsum(gm.total * total_bytes_per_osd) as \"Total bytes\"--, -- total bytes for all osds reporting this ceph_version_norm\n\t--, sum(gm.total * total_used_bytes_per_osd) as \"Total used bytes\" -- -- total used bytes for all osds reporting this ceph_version_norm\nfrom cpo\ninner join grafana.metadata gm on cpo.report_id = gm.report_id \nwhere gm.attr = 'ceph_version_norm'\nand case when '$display'='Major' then\n            SPLIT_PART(gm.value, '.', 1)\n          else gm.value end\n          in\n          (select unnest(case when '$display'='Major' then Array[$major]\n    else Array[$minor] end))\nand gm.entity = 'osd'\ngroup by 1, 2\norder by 1; --upo.daily_window;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Total Capacity by Version",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:452",
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:453",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Every day shows a total bytes count of all distinct clusters reporting over a past week. We aggregate the number of total used bytes according to the osd versions.",
+      "fieldConfig": {
+        "defaults": {
+          "links": [],
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "12"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Luminous"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "13"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mimic"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "14"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Nautilus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "15"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Octopus"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "16"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pacific"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "17"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Quincy"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 78
+      },
+      "hiddenSeries": false,
+      "id": 43,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 0.5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with cpo as ( --capacity_per_osd\n\tselect\n\t  --$__timeGroup(w.daily_window, '1d', 0),\n\t\tw.daily_window, -- as time,\n\t\tc.report_id,\n\t\t--c.osd_count,\n\t\t-- c.TOTAL_BYTES / c.osd_count::real as \"total_bytes_per_osd\",\n\t\tc.TOTAL_USED_BYTES / c.osd_count::real as \"total_used_bytes_per_osd\"\n\t\t--sum(c.TOTAL_BYTES) as \"Total\",\n\t\t--sum(c.TOTAL_USED_BYTES) as \"Used\"\n\t\t--c.TOTAL_BYTES as \"Total\",\n\t\t--c.TOTAL_USED_BYTES as \"Used\"\n\tfrom grafana.weekly_reports_sliding w \n\tinner join grafana.ts_cluster c on w.report_id = c.report_id\n\twhere osd_count > 0\n\t--and c.TOTAL_BYTES > 0\n\t--group by daily_window\n\t--order by daily_window\n)\nselect --*,\n\t--cpo.daily_window as time,\n\t$__timeGroup(cpo.daily_window, '1d', 0),\n\t--gm.value as metric,\n\tCASE\n    WHEN '$display' = 'Major' then\n      SPLIT_PART(gm.value, '.', 1) \n    else gm.value\n  end as metric,\n\t-- gm.total is the total number of daemons with that attribute\n\t--sum(gm.total * total_bytes_per_osd) as \"Total bytes\"--, -- total bytes for all osds reporting this ceph_version_norm\n\tsum(gm.total * total_used_bytes_per_osd) as \"Total used bytes\" -- -- total used bytes for all osds reporting this ceph_version_norm\nfrom cpo\ninner join grafana.metadata gm on cpo.report_id = gm.report_id \nwhere gm.attr = 'ceph_version_norm'\nand case when '$display'='Major' then\n            SPLIT_PART(gm.value, '.', 1)\n          else gm.value end\n          in\n          (select unnest(case when '$display'='Major' then Array[$major]\n    else Array[$minor] end))\nand gm.entity = 'osd'\ngroup by 1, 2\norder by 1; --cpo.daily_window;\n\n/*\nselect daily_window as time, sum(c.TOTAL_BYTES) as \"Total\", sum(c.TOTAL_USED_BYTES) as \"Used\"\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;\n*/",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Total Used Capacity by Version",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:452",
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:453",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "cards": {
+        "cardPadding": null,
+        "cardRound": null
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateSpectral",
+        "exponent": 0.5,
+        "mode": "spectrum"
+      },
+      "dataFormat": "timeseries",
+      "datasource": null,
+      "description": "X axis is a daily sliding window of a week;\nY axis is total capacity;\nColor intensity represents the number of clusters within this total capacity range.",
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 91
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 31,
+      "legend": {
+        "show": true
+      },
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "See odd clusters",
+          "url": "/d/8xqKFTrZz/odd-clusters?orgId=1"
+        }
+      ],
+      "reverseYBuckets": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tw.DAILY_WINDOW as time,\n\tc.total_bytes / 1024 / 1024 / 1024 gb\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Cluster Distribution by Total Capacity",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "tooltipDecimals": 0,
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketNumber": null,
+      "xBucketSize": "1d",
+      "yAxis": {
+        "decimals": 0,
+        "format": "gbytes",
+        "logBase": 2,
+        "max": null,
+        "min": "64",
+        "show": true,
+        "splitFactor": 1
+      },
+      "yBucketBound": "auto",
+      "yBucketNumber": null,
+      "yBucketSize": null
+    },
+    {
+      "cards": {
+        "cardPadding": null,
+        "cardRound": null
+      },
+      "color": {
+        "cardColor": "#73BF69",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateGreys",
+        "exponent": 0.5,
+        "mode": "spectrum"
+      },
+      "dataFormat": "timeseries",
+      "datasource": null,
+      "description": "X axis is a daily sliding window of a week;\nY axis is total capacity;\nColor intensity represents the number of clusters within this total capacity range.",
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 106
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 33,
+      "legend": {
+        "show": true
+      },
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "See odd clusters",
+          "url": "/d/8xqKFTrZz/odd-clusters?orgId=1"
+        }
+      ],
+      "reverseYBuckets": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tw.DAILY_WINDOW as time,\n\tc.total_bytes / 1024 / 1024 / 1024 gb\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Cluster Distribution by Total Capacity",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "tooltipDecimals": 0,
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketNumber": null,
+      "xBucketSize": "1d",
+      "yAxis": {
+        "decimals": 0,
+        "format": "gbytes",
+        "logBase": 2,
+        "max": null,
+        "min": "64",
+        "show": true,
+        "splitFactor": 1
+      },
+      "yBucketBound": "auto",
+      "yBucketNumber": null,
+      "yBucketSize": null
+    },
+    {
+      "cards": {
+        "cardPadding": null,
+        "cardRound": null
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateSpectral",
+        "exponent": 0.5,
+        "mode": "spectrum"
+      },
+      "dataFormat": "timeseries",
+      "datasource": null,
+      "description": "X axis is a daily sliding window of a week;\nY axis is total used capacity;\nColor intensity represents the number of clusters within this total used capacity range.",
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 121
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 32,
+      "legend": {
+        "show": true
+      },
+      "links": [
+        {
+          "title": "See odd clusters",
+          "url": "/d/8xqKFTrZz/odd-clusters?orgId=1"
+        }
+      ],
+      "reverseYBuckets": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tw.DAILY_WINDOW as time,\n\tc.total_used_bytes / 1024 / 1024 / 1024 gb\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Cluster Distribution by Total Used Capacity",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "tooltipDecimals": 0,
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketNumber": null,
+      "xBucketSize": "1d",
+      "yAxis": {
+        "decimals": 0,
+        "format": "gbytes",
+        "logBase": 2,
+        "max": null,
+        "min": "64",
+        "show": true,
+        "splitFactor": 1
+      },
+      "yBucketBound": "auto",
+      "yBucketNumber": null,
+      "yBucketSize": null
+    },
+    {
+      "cards": {
+        "cardPadding": null,
+        "cardRound": null
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateSpectral",
+        "exponent": 0.5,
+        "mode": "spectrum"
+      },
+      "dataFormat": "timeseries",
+      "datasource": null,
+      "description": "X axis is a daily sliding window of a week;\nY axis is OSD count;\nColor intensity represents the number of clusters which have this OSD count.",
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 136
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 30,
+      "legend": {
+        "show": true
+      },
+      "links": [],
+      "reverseYBuckets": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tw.DAILY_WINDOW as time,\n\tc.OSD_COUNT\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Cluster Distribution by OSD Count",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "tooltipDecimals": 0,
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketNumber": null,
+      "xBucketSize": "1d",
+      "yAxis": {
+        "decimals": 1,
+        "format": "locale",
+        "logBase": 2,
+        "max": null,
+        "min": null,
+        "show": true,
+        "splitFactor": 2
+      },
+      "yBucketBound": "auto",
+      "yBucketNumber": null,
+      "yBucketSize": null
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 149
+      },
+      "id": 37,
+      "options": {
+        "content": "\n# [See more capacity density charts](/d/Pb90AgCWk/capacity-density?orgId=1)\n\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "More Charts",
+      "transparent": true,
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "Major",
+          "value": "Major"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Display by",
+        "multi": false,
+        "name": "display",
+        "options": [
+          {
+            "selected": true,
+            "text": "Major",
+            "value": "Major"
+          },
+          {
+            "selected": false,
+            "text": "Minor",
+            "value": "Minor"
+          }
+        ],
+        "query": "Major,Minor",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "select\n  replace(concat(version, '  --  ', name), 'Dev  --  ', 'Dev') as __text,\n  version as __value\nfrom grafana.version_to_name;",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Major",
+        "multi": true,
+        "name": "major",
+        "options": [],
+        "query": "select\n  replace(concat(version, '  --  ', name), 'Dev  --  ', 'Dev') as __text,\n  version as __value\nfrom grafana.version_to_name;",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "/*select\n\tdistinct(SPLIT_PART(value, '.', '1')) major\nfrom\n\tgrafana.metadata\nwhere\n\tattr='ceph_version_norm'\norder BY\n\tmajor;\n*/\n\nselect\n        distinct(value)\nfrom\n\tgrafana.metadata\nwhere\n\tattr='ceph_version_norm'\nand\n      SPLIT_PART(value, '.', '1') in ($major);\n",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Minor",
+        "multi": true,
+        "name": "minor",
+        "options": [],
+        "query": "/*select\n\tdistinct(SPLIT_PART(value, '.', '1')) major\nfrom\n\tgrafana.metadata\nwhere\n\tattr='ceph_version_norm'\norder BY\n\tmajor;\n*/\n\nselect\n        distinct(value)\nfrom\n\tgrafana.metadata\nwhere\n\tattr='ceph_version_norm'\nand\n      SPLIT_PART(value, '.', '1') in ($major);\n",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Daemons",
+        "multi": true,
+        "name": "daemons",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "osd",
+            "value": "osd"
+          },
+          {
+            "selected": false,
+            "text": "mon",
+            "value": "mon"
+          }
+        ],
+        "query": "osd,mon",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Telemetry",
+  "uid": "-GcbjrXZz",
+  "version": 116
+}

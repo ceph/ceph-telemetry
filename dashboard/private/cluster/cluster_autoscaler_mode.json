@@ -1,0 +1,301 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 328
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show details",
+                    "url": "/d/9pUyOJrWk/cluster-private?orgId=1&var-c_id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "report_id"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show details",
+                    "url": "/d/hyqCQ97Mk/raw-cluster-report?orgId=1&var-id=${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_used_bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "osd_count"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pools_num"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pg_num"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "created"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 197
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster_versions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 234
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 31,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "total_bytes"
+          }
+        ]
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "/*\nwith autoscaler_mode_per_report as (\n\tselect w.report_id, array_agg(distinct(pg_autoscale_mode)) \"autoscaler_mode\"\n\tfrom grafana.pool p\n\tinner join grafana.weekly_reports_sliding w on p.report_id = w.report_id \n\twhere\n\t  w.DAILY_WINDOW BETWEEN $__timeTo()::timestamp - interval '1 day' AND $__timeTo()::timestamp\n\tgroup by w.report_id\n)\nselect\n  a.autoscaler_mode,\n  c.*\nfrom autoscaler_mode_per_report a\ninner join grafana.ts_cluster c on a.report_id = c.report_id;\n*/\n\n\n\nwith autoscaler_mode_per_report as (\n\tselect p.report_id, p.pg_autoscale_mode, count(*) \"total\"\n\tfrom grafana.pool p\n\tinner join grafana.weekly_reports_sliding w on p.report_id = w.report_id \n\twhere\n\t w.DAILY_WINDOW BETWEEN $__timeTo()::timestamp - interval '1 day' AND $__timeTo()::timestamp\n\tgroup by p.report_id, p.pg_autoscale_mode\n),\nauto_scaler_dist as (\n\tselect a.report_id, array_agg(a.pg_autoscale_mode) \"autoscaler_mode\", array_agg(a.total) \"pools_distribution\"\n\tfrom autoscaler_mode_per_report a\n\tgroup by 1\n),\nceph_version as (\n\tselect m.report_id, array_agg(distinct(m.value)) \"cluster_versions\" \n\tfrom grafana.metadata m\n\tinner join auto_scaler_dist d on m.report_id = d.report_id\n\twhere attr = 'ceph_version_norm'\n\tgroup by m.report_id \n)\nselect ad.autoscaler_mode, ad.pools_distribution, c.*, v.cluster_versions --split_part(v.cluster_versions::TEXT, ',', 1) \nfrom auto_scaler_dist ad\ninner join grafana.ts_cluster c on ad.report_id = c.report_id\nleft join ceph_version v on v.report_id = c.report_id  \norder by ad.report_id;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Autoscaler mode for  all clusters reporting during the week of ${__to:date:YYYY-MM-DD}",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "ipv4_addr_mons": true,
+              "ipv6_addr_mons": true,
+              "ts": true,
+              "v1_addr_mons": true,
+              "v2_addr_mons": true
+            },
+            "indexByName": {
+              "autoscaler_mode": 5,
+              "channel_basic": 9,
+              "channel_crash": 10,
+              "channel_device": 11,
+              "channel_ident": 12,
+              "cluster_id": 1,
+              "cluster_versions": 3,
+              "created": 2,
+              "fs_count": 22,
+              "hosts_num": 23,
+              "ipv4_addr_mons": 17,
+              "ipv6_addr_mons": 18,
+              "mon_count": 16,
+              "osd_count": 15,
+              "pg_num": 8,
+              "pools_distribution": 6,
+              "pools_num": 4,
+              "rbd_num_pools": 21,
+              "report_id": 0,
+              "total_bytes": 13,
+              "total_used_bytes": 14,
+              "ts": 7,
+              "v1_addr_mons": 19,
+              "v2_addr_mons": 20
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Autoscaler Mode",
+  "uid": "R9we5VKnk",
+  "version": 12
+}
