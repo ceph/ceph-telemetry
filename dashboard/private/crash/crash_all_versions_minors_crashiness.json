@@ -1,0 +1,283 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1646865958409,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "panels": [],
+      "repeat": "all_majors",
+      "title": "Crashiness of version $all_majors",
+      "type": "row"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "$__cell_0",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "8.1.2",
+      "repeat": null,
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with \n  latest_report AS ( -- The latest cluster report for a specific time interval\n\tSELECT\n\t\tDISTINCT ON(cluster_id)\n\t\treport_id\n\tFROM \n\t\tgrafana.ts_cluster\n\tWHERE\n\t\t$__timeFilter(ts)\n\tORDER BY\n\t\tcluster_id,\n\t    ts DESC\n  ),\n  version_count AS ( -- Number of daemons running a specific version for the time frame selected above.\n\tSELECT value as version, sum(total) num\n\tFROM latest_report INNER JOIN grafana.metadata ON latest_report.report_id = grafana.metadata.report_id\n\tWHERE\n\t\tattr='ceph_version_norm'\n\t\tAND SPLIT_PART(value, '.', 1) = $all_majors\n\tGROUP BY 1\n  ),\n  crashes_versions_count AS ( -- Crashes count per version per time frame.\n\tSELECT split_part(ceph_version, '-', 1) as version, count(*) num\n\tFROM crash.crash\n\tWHERE $__timeFilter(ts)\n\tAND SPLIT_PART(ceph_version, '.', 1) = $all_majors\n\tGROUP BY 1\n  )\nSELECT 'v' || version_count.version::TEXT AS version, coalesce(crashes_versions_count.num / version_count.num::REAL, 0) crashiness\nFROM version_count\nLEFT JOIN crashes_versions_count ON crashes_versions_count.version = version_count.version\nORDER BY version_count.version",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Crashes per daemon between ${__from:date:YYYY-MM-DD} and ${__to:date:YYYY-MM-DD}",
+      "type": "bargauge"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "$__cell_0",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 15,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT 'v' || split_part(ceph_version, '-', 1) as version, count(distinct(spec_id)) num\nFROM crash.crash\n  INNER JOIN crash.spec ON crash.crash.spec_id = crash.spec.id\n  INNER JOIN crash.spec_status ON crash.spec.spec_status_id = crash.spec_status.id\nWHERE NOT crash.spec_status.ignore\nAND $__timeFilter(ts)\nAND split_part(ceph_version, '.', 1) = $all_majors\nGROUP BY 1\nORDER BY 1\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Unique crash fingerprints between ${__from:date:YYYY-MM-DD} and ${__to:date:YYYY-MM-DD}",
+      "type": "bargauge"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": [
+            "13",
+            "14",
+            "15",
+            "16"
+          ],
+          "value": [
+            "13",
+            "14",
+            "15",
+            "16"
+          ]
+        },
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": true,
+        "name": "all_majors",
+        "options": [
+          {
+            "selected": true,
+            "text": "13",
+            "value": "13"
+          },
+          {
+            "selected": true,
+            "text": "14",
+            "value": "14"
+          },
+          {
+            "selected": true,
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "selected": true,
+            "text": "16",
+            "value": "16"
+          }
+        ],
+        "query": "13,14,15,16",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "All versions minors crashiness",
+  "uid": "yR2njn-Mk",
+  "version": 3
+}

@@ -1,0 +1,720 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_POSTGRESQL",
+      "label": "PostgreSQL",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "postgres",
+      "pluginName": "PostgreSQL"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "datasource",
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1646855480874,
+  "links": [
+    {
+      "icon": "dashboard",
+      "tags": [],
+      "title": "Main",
+      "type": "link",
+      "url": "/d/GiO_B8bMz/main?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": null,
+      "description": "",
+      "gridPos": {
+        "h": 8,
+        "w": 14,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "content": "<br>\n<b>Search guidelines:</b><br>\nSearch for substrings in the function names of the stack trace.<br>\nRemove trailing parenthesis, and the offset. <br>\nFor example, to find fingerprints with this function in their stack:<br>\n<i>(BlueStore::_txc_add_transaction(BlueStore::TransContext*, ObjectStore::Transaction*)+0x1671) [0x55def4121481]</i><br>\nSearch for: <br>\n<i>BlueStore::_txc_add_transaction(BlueStore::TransContext*, ObjectStore::Transaction*)</i><br>\n(or any substring of it)<br>\nAll of the substrings supplied must be found in the stack names for the fingerprint to match.<br>\nLeave a field empty to ignore it.<br>\nSearch is case sensitive.<br>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "clusters_count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 119
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ts_first_occurrence"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 139
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sig_v2"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 122
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Spec X-ray",
+                    "url": "/d/jByk5HaMz/crash-spec-x-ray?var-sig_v2=${__value.text}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "majors_count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 111
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "minors_affected"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 332
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "crashes_count"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              },
+              {
+                "id": "custom.width",
+                "value": 142
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "assert_func"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 395
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "majors_affected"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 119
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "minors_count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 105
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ts_last_occurrence"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 151
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "crashes_in_tf"
+            },
+            "properties": [
+              {
+                "id": "noValue",
+                "value": "0"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sig_v1_arr"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 128
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "clusters_count"
+          }
+        ]
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT --*\n  crash.spec_mv.description as status,\n  encode(crash.spec_mv.sig_v2, 'hex') as sig_v2,\n\tts_first_occurrence::date::text,\n\tts_last_occurrence::date::text,\n\tcrash_count as crashes_count, -- all time crashes count\n\tCC.cnt as crashes_in_tf,\n\tclusters_count,\n\tmajors_count,\n\tmajors_affected,\n\tminors_count,\n\tminors_affected,\n\tarray_remove(daemon_arr, NULL) daemons, -- removes NULL process names\n\tassert_func,\n\tassert_condition\n\t--, sig_v1_arr\n\t--, crash.spec_mv.ignore\nFROM crash.spec_mv\n  INNER JOIN\n    (SELECT COUNT(*) cnt, spec_id--, max(ts) as ts_last_occurrence\n            --, array_agg(distinct(process_name)) daemons -- moved to crash.spec_mv\n    FROM crash.crash\n    WHERE $__timeFilter(crash.crash.ts) \n    GROUP BY spec_id) AS CC\n    ON crash.spec_mv.id = CC.spec_id\nWHERE\n      -- unnest returns the result set as a table\n\t    (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_1' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_2' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_3' in nam) > 0 ))\n\tAND ARRAY_REMOVE(ARRAY[$majors_affected]::text[], '') <@ majors_affected\n\tAND ARRAY_REMOVE(ARRAY[$minors_affected]::text[], '') <@ minors_affected\n\tAND ((LENGTH('$assert_function') = 0) OR (position('$assert_function' in crash.spec_mv.assert_func) > 0))\n\tAND ((LENGTH('$assert_condition') = 0) OR (position('$assert_condition' in crash.spec_mv.assert_condition) > 0))\n\t--AND ((LENGTH('$sig_v1') = 0) OR (position('$sig_v1' in crash.spec_mv.sig_v1_arr) > 0))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.sig_v1_arr) sig_v1_array where position('$sig_v1' in sig_v1_array) > 0 ))\n  AND ((LENGTH('$sig_v2') = 0) OR (position('$sig_v2' in encode(crash.spec_mv.sig_v2, 'hex')) > 0))\n  AND ARRAY_REMOVE(ARRAY[$daemons]::text[], '') <@ daemon_arr\n  AND crash.spec_mv.description in ($status_description)\n  AND\n      CASE\n        WHEN $only_open::boolean\n            THEN crash.spec_mv.ignore = false\n        ELSE true\n      END\n  AND\n      CASE\n        WHEN $only_new_fingerprints::boolean\n            THEN $__timeFilter(crash.spec_mv.ts_first_occurrence)\n        ELSE true\n      END\nORDER BY\n  clusters_count DESC;\n\n\n/*\n SELECT\n  crash.spec_mv.ts_first_occurrence::date::text,\n  CC.ts_last_occurrence::date::text,\n  encode(sig_v2, 'hex') \"fingerprint (sig_v2)\",\n  CC.cnt as crashes_count,\n  clusters_count,\n  majors_count,\n  minors_affected,\n  assert_func,\n  assert_condition\nFROM\n  crash.spec_mv\n  INNER JOIN\n    (SELECT COUNT(*) cnt, spec_id, max(ts) as ts_last_occurrence\n    FROM crash.crash\n    --WHERE $__timeFilter(crash.crash.ts) \n    GROUP BY spec_id) AS CC\n    ON crash.spec_mv.id = CC.spec_id\nWHERE\n      -- unnest returns the result set as a table\n\t    (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_1' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_2' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_3' in nam) > 0 ))\n\tAND ARRAY[$minors_affected]::text[] <@ minors_affected\n\tAND ((LENGTH('$assert_function') = 0) OR (position('$assert_function' in crash.spec_mv.assert_func) > 0))\n\tAND ((LENGTH('$assert_condition') = 0) OR (position('$assert_condition' in crash.spec_mv.assert_condition) > 0))\nORDER BY\n  clusters_count DESC\n*/",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Found $total_results Crash Fingerprints",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": null,
+        "name": "substr_1",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": null,
+        "name": "substr_2",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": null,
+        "name": "substr_3",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "select ''\nunion\nselect distinct(split_part(ceph_version, '.', 1))\nfrom crash.crash\nwhere split_part(ceph_version, '.', 1) != 'l-v15'\norder by 1;",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "majors_affected",
+        "multi": true,
+        "name": "majors_affected",
+        "options": [],
+        "query": "select ''\nunion\nselect distinct(split_part(ceph_version, '.', 1))\nfrom crash.crash\nwhere split_part(ceph_version, '.', 1) != 'l-v15'\norder by 1;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "select ''\nunion\nselect distinct(split_part(ceph_version, '-', 1))\nfrom crash.crash\norder by 1;",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "minors_affected",
+        "multi": true,
+        "name": "minors_affected",
+        "options": [],
+        "query": "select ''\nunion\nselect distinct(split_part(ceph_version, '-', 1))\nfrom crash.crash\norder by 1;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "assert_function",
+        "name": "assert_function",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "assert_condition",
+        "name": "assert_condition",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "SELECT \n        count(*)\n        /*\n        encode(crash.spec_mv.sig_v2, 'hex') as sig_v2,\n\tts_first_occurrence::date::text,\n\tts_last_occurrence::date::text,\n\tcrash_count as crashes_count, -- all time crashes count\n\tCC.cnt as crashes_in_tf,\n\tclusters_count,\n\tmajors_count,\n\tmajors_affected,\n\tminors_count,\n\tminors_affected,\n\tarray_remove(daemon_arr, NULL) daemons, -- removes NULL process names\n\tassert_func,\n\tassert_condition,\n\tsig_v1_arr,\n\tcrash.spec_mv.description\n        */\nFROM crash.spec_mv\n  INNER JOIN\n    (SELECT COUNT(*) cnt, spec_id--, max(ts) as ts_last_occurrence\n            --, array_agg(distinct(process_name)) daemons -- moved to crash.spec_mv\n    FROM crash.crash\n    WHERE $__timeFilter(crash.crash.ts) \n    GROUP BY spec_id) AS CC\n    ON crash.spec_mv.id = CC.spec_id\nWHERE\n      -- unnest returns the result set as a table\n\t    (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_1' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_2' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_3' in nam) > 0 ))\n\tAND ARRAY_REMOVE(ARRAY[$majors_affected]::text[], '') <@ majors_affected\n\tAND ARRAY_REMOVE(ARRAY[$minors_affected]::text[], '') <@ minors_affected\n\tAND ((LENGTH('$assert_function') = 0) OR (position('$assert_function' in crash.spec_mv.assert_func) > 0))\n\tAND ((LENGTH('$assert_condition') = 0) OR (position('$assert_condition' in crash.spec_mv.assert_condition) > 0))\n\t--AND ((LENGTH('$sig_v1') = 0) OR (position('$sig_v1' in crash.spec_mv.sig_v1_arr) > 0))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.sig_v1_arr) sig_v1_array where position('$sig_v1' in sig_v1_array) > 0 ))\n  AND ((LENGTH('$sig_v2') = 0) OR (position('$sig_v2' in encode(crash.spec_mv.sig_v2, 'hex')) > 0))\n  AND ARRAY_REMOVE(ARRAY[$daemons]::text[], '') <@ daemon_arr\n  AND crash.spec_mv.description in ($status_description)\n  AND\n      CASE\n        WHEN $only_open::boolean\n            THEN crash.spec_mv.ignore = false\n        ELSE true\n      END\n  AND\n      CASE\n        WHEN $only_new_fingerprints::boolean\n            THEN $__timeFilter(crash.spec_mv.ts_first_occurrence)\n        ELSE true\n      END;\n--ORDER BY\n  --clusters_count DESC;",
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": false,
+        "label": "total_results",
+        "multi": false,
+        "name": "total_results",
+        "options": [],
+        "query": "SELECT \n        count(*)\n        /*\n        encode(crash.spec_mv.sig_v2, 'hex') as sig_v2,\n\tts_first_occurrence::date::text,\n\tts_last_occurrence::date::text,\n\tcrash_count as crashes_count, -- all time crashes count\n\tCC.cnt as crashes_in_tf,\n\tclusters_count,\n\tmajors_count,\n\tmajors_affected,\n\tminors_count,\n\tminors_affected,\n\tarray_remove(daemon_arr, NULL) daemons, -- removes NULL process names\n\tassert_func,\n\tassert_condition,\n\tsig_v1_arr,\n\tcrash.spec_mv.description\n        */\nFROM crash.spec_mv\n  INNER JOIN\n    (SELECT COUNT(*) cnt, spec_id--, max(ts) as ts_last_occurrence\n            --, array_agg(distinct(process_name)) daemons -- moved to crash.spec_mv\n    FROM crash.crash\n    WHERE $__timeFilter(crash.crash.ts) \n    GROUP BY spec_id) AS CC\n    ON crash.spec_mv.id = CC.spec_id\nWHERE\n      -- unnest returns the result set as a table\n\t    (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_1' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_2' in nam) > 0 ))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.stack_names) nam where position('$substr_3' in nam) > 0 ))\n\tAND ARRAY_REMOVE(ARRAY[$majors_affected]::text[], '') <@ majors_affected\n\tAND ARRAY_REMOVE(ARRAY[$minors_affected]::text[], '') <@ minors_affected\n\tAND ((LENGTH('$assert_function') = 0) OR (position('$assert_function' in crash.spec_mv.assert_func) > 0))\n\tAND ((LENGTH('$assert_condition') = 0) OR (position('$assert_condition' in crash.spec_mv.assert_condition) > 0))\n\t--AND ((LENGTH('$sig_v1') = 0) OR (position('$sig_v1' in crash.spec_mv.sig_v1_arr) > 0))\n\tAND (0 < (select count(*) from unnest(crash.spec_mv.sig_v1_arr) sig_v1_array where position('$sig_v1' in sig_v1_array) > 0 ))\n  AND ((LENGTH('$sig_v2') = 0) OR (position('$sig_v2' in encode(crash.spec_mv.sig_v2, 'hex')) > 0))\n  AND ARRAY_REMOVE(ARRAY[$daemons]::text[], '') <@ daemon_arr\n  AND crash.spec_mv.description in ($status_description)\n  AND\n      CASE\n        WHEN $only_open::boolean\n            THEN crash.spec_mv.ignore = false\n        ELSE true\n      END\n  AND\n      CASE\n        WHEN $only_new_fingerprints::boolean\n            THEN $__timeFilter(crash.spec_mv.ts_first_occurrence)\n        ELSE true\n      END;\n--ORDER BY\n  --clusters_count DESC;",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "sig_v1",
+        "name": "sig_v1",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "sig_v2",
+        "name": "sig_v2",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "select ''\nunion\nSELECT\n    distinct(process_name) --daemons\nFROM crash.crash\nWHERE process_name is not NULL;\n\n\n/*\n-- selects all daemons except for 'NULL'\nSELECT\n    unnest(array_remove(array_agg(distinct(process_name)), NULL)) --daemons\nFROM crash.crash;\n*/",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "daemons",
+        "multi": true,
+        "name": "daemons",
+        "options": [],
+        "query": "select ''\nunion\nSELECT\n    distinct(process_name) --daemons\nFROM crash.crash\nWHERE process_name is not NULL;\n\n\n/*\n-- selects all daemons except for 'NULL'\nSELECT\n    unnest(array_remove(array_agg(distinct(process_name)), NULL)) --daemons\nFROM crash.crash;\n*/",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "false",
+          "value": "false"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "only_new_fingerprints",
+        "multi": false,
+        "name": "only_new_fingerprints",
+        "options": [
+          {
+            "selected": false,
+            "text": "true",
+            "value": "true"
+          },
+          {
+            "selected": true,
+            "text": "false",
+            "value": "false"
+          }
+        ],
+        "query": "true, false",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_POSTGRESQL}",
+        "definition": "select description\nfrom crash.spec_status;",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "status",
+        "multi": true,
+        "name": "status_description",
+        "options": [],
+        "query": "select description\nfrom crash.spec_status;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "false",
+          "value": "false"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "only_open",
+        "multi": false,
+        "name": "only_open",
+        "options": [
+          {
+            "selected": false,
+            "text": "true",
+            "value": "true"
+          },
+          {
+            "selected": true,
+            "text": "false",
+            "value": "false"
+          }
+        ],
+        "query": "true, false",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Spec Search",
+  "uid": "Nvj6XTaMk",
+  "version": 109
+}

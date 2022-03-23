@@ -1,0 +1,549 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph (old)",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "icon": "dashboard",
+      "tags": [],
+      "title": "Ceph Telemetry",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/-GcbjrXZz/telemetry?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "aliasColors": {
+        "p75": "red"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 10,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\t--*\n\t--count(*),\n\t--count(distinct(cluster_id)),\n\tw.DAILY_WINDOW as time,\n\tavg(c.rbd_num_pools),\n\tpercentile_cont(0.25) within group (order by c.rbd_num_pools) as p25,\n\tpercentile_cont(0.5) within group (order by c.rbd_num_pools) as p50,\n\tpercentile_cont(0.75) within group (order by c.rbd_num_pools) as p75,\n\tpercentile_cont(1) within group (order by c.rbd_num_pools) as p100--,\n\t--max(c.rbd_num_pools)\n\t--w.report_id--,\n\t--percentile_cont(0.5) within group (order by num_images) as med,\n\t--round(avg(c.num_images)) as avg,\n\t--count(c.num_images),\n\t--count(c.pool_idx),\n\t--sum(c.num_images) as total_images_per_cluster--,\n\t--max(c.num_images)\n\t--count(distinct(cluster_id))\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\n\t--grafana.rbd_pool c -- 'c' for cluster\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\n  --w.DAILY_WINDOW BETWEEN '2021-01-10' and '2021-01-22'\nAND\n\tc.rbd_num_pools > 0\nGROUP BY w.daily_window--, w.report_id\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "RBD  Pool Count",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:156",
+          "format": "locale",
+          "label": "",
+          "logBase": 2,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:157",
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 6,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\t--*\n\tw.DAILY_WINDOW as time,\n\tcount(*) \"Active clusters\"\n\t--count(distinct(cluster_id))\n\t--w.DAILY_WINDOW,\n\t--w.report_id--,\n\t--percentile_cont(0.5) within group (order by num_images) as med,\n\t--round(avg(c.num_images)) as avg,\n\t--count(c.num_images),\n\t--count(c.pool_idx),\n\t--sum(c.num_images) as total_images_per_cluster--,\n\t--max(c.num_images)\n\t--count(distinct(cluster_id))\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\n\t--grafana.rbd_pool c -- 'c' for cluster\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\nGROUP BY w.daily_window--, w.report_id\norder by\n\tw.DAILY_WINDOW;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\t--*\n\tw.DAILY_WINDOW as time,\n\tcount(*) \"Active clusters reporting RBD\"\n\t--count(distinct(cluster_id))\n\t--w.DAILY_WINDOW,\n\t--w.report_id--,\n\t--percentile_cont(0.5) within group (order by num_images) as med,\n\t--round(avg(c.num_images)) as avg,\n\t--count(c.num_images),\n\t--count(c.pool_idx),\n\t--sum(c.num_images) as total_images_per_cluster--,\n\t--max(c.num_images)\n\t--count(distinct(cluster_id))\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\tgrafana.ts_cluster c\n\t--grafana.rbd_pool c -- 'c' for cluster\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\nAND\n  c.rbd_num_pools > 0\nGROUP BY w.daily_window--, w.report_id\norder by\n\tw.DAILY_WINDOW;\n",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Active clusters",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:242",
+          "format": "locale",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:243",
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 8,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:328",
+          "alias": "max",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tw.DAILY_WINDOW as time,\n\t--round(avg(c.num_images)) as avg,\n\tavg(c.num_images) as avg,\n\tpercentile_cont(0.25) within group (order by num_images) as p25,\n\tpercentile_cont(0.5) within group (order by num_images) as p50,\n\tpercentile_cont(0.75) within group (order by num_images) as p75,\n\tpercentile_cont(1) within group (order by num_images) as p100--,\n\t--max(c.num_images)\n\t--percentile_cont(0.5) within group (order by num_images) as med--,\n\t--count(c.num_images),\n\t--sum(c.num_images),\n\t--count(distinct(cluster_id))\nfrom\n\tgrafana.WEEKLY_REPORTS_SLIDING w\ninner join \n\t--grafana.ts_cluster c\n\tgrafana.rbd_pool c\non\n\tw.REPORT_ID = c.REPORT_ID\nWHERE\n  $__timeFilter(w.DAILY_WINDOW)\n  --w.DAILY_WINDOW BETWEEN '2021-01-10' and '2021-01-12'\nGROUP BY w.daily_window\norder by\n\tw.DAILY_WINDOW;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "RBD Images by Pool",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:342",
+          "format": "locale",
+          "label": "",
+          "logBase": 2,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:343",
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 9,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tagg.DAILY_WINDOW as time,\n\t--count(*),\n\t--max(total_images_per_cluster),\n\t--round(avg(total_images_per_cluster)) avg,\n\tavg(total_images_per_cluster) avg,\n\tpercentile_cont(0.25) within group (order by total_images_per_cluster) as p25,\n\tpercentile_cont(0.5) within group (order by total_images_per_cluster) as p50,\n\tpercentile_cont(0.75) within group (order by total_images_per_cluster) as p75,\n\tpercentile_cont(1) within group (order by total_images_per_cluster) as p100--,\n\t--max(total_images_per_cluster)\nfrom (\n\tselect\n\t\tw.DAILY_WINDOW,\n\t\tw.report_id,\n\t\t--percentile_cont(0.5) within group (order by num_images) as med,\n\t\t--round(avg(c.num_images)) as avg,\n\t\t--count(c.num_images),\n\t\t--count(c.pool_idx),\n\t\tsum(c.num_images) as total_images_per_cluster--,\n\t\t--max(c.num_images)\n\t\t--count(distinct(cluster_id))\n\tfrom\n\t\tgrafana.WEEKLY_REPORTS_SLIDING w\n\tinner join \n\t\t--grafana.ts_cluster c\n\t\tgrafana.rbd_pool c -- 'c' for cluster\n\ton\n\t\tw.REPORT_ID = c.REPORT_ID\n\t--WHERE\n\t  --$__timeFilter(w.DAILY_WINDOW)\n\t    --w.DAILY_WINDOW BETWEEN '2021-01-10' and '2021-01-12'\n\tGROUP BY w.daily_window, w.report_id\n\torder by\n\t\tw.DAILY_WINDOW\n) agg\nGROUP BY agg.daily_window--, agg.report_id\norder by\n\tagg.DAILY_WINDOW\n;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "RBD Images by Cluster",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:434",
+          "format": "locale",
+          "label": "",
+          "logBase": 2,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:435",
+          "format": "locale",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "RBD",
+  "uid": "DnkZQQPMk",
+  "version": 7
+}

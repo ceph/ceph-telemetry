@@ -1,0 +1,4 @@
+40 02 * * * /opt/telemetry/import_crashes.py
+00 03 * * * /opt/telemetry/import_clusters.py
+20 03 * * * /opt/telemetry/import_devices.py
+30 01 * * * /opt/telemetry/compress_raw_reports_telemetry.sh

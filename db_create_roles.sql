@@ -1,5 +1,9 @@
 --CREATE USER grafana WITH PASSWORD '<PASSWORD>';
 --CREATE USER grafana_ro WITH PASSWORD '<PASSWORD>';
+
+-- This command must be run as user 'postgres', since user 'telemetry' is not part of 'grafana' role
+ALTER MATERIALIZED VIEW device.weekly_reports_sliding OWNER TO grafana;
+
 GRANT USAGE ON SCHEMA grafana TO grafana, grafana_ro;
 GRANT ALL ON ALL TABLES IN SCHEMA grafana TO grafana; -- "ALL TABLES" includes views
 GRANT ALL ON ALL SEQUENCES IN SCHEMA grafana TO grafana;
