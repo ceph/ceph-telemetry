@@ -92,6 +92,8 @@ CREATE TABLE device.ts_device (
     error       TEXT
 );
 
+CREATE INDEX ON device.ts_device (device_id, ts);
+
 /*
 device_id is a serial id generated on inserts to device.device table.
 report_id is a serial id generated on inserts to public.device_report table.
@@ -109,6 +111,8 @@ CREATE TABLE device.smart_sata (
     attr_norm       BIGINT,
     attr_worst      BIGINT
 );
+
+CREATE INDEX ON device.smart_sata (report_id);
 
 CREATE TABLE device.smart_nvme (
     device_id       INTEGER NOT NULL REFERENCES device.device(id) ON DELETE CASCADE,
@@ -173,3 +177,14 @@ CREATE TABLE device.mapping (
     o_vendor          VARCHAR(128), -- Output vendor
     o_model           VARCHAR(128)  -- Output model
 );
+
+CREATE TABLE device.prediction_result (
+    id          SERIAL PRIMARY KEY,
+    device_id   INTEGER NOT NULL REFERENCES device.device(id) ON DELETE CASCADE,
+    ts          TIMESTAMP,
+    algo_id     SMALLINT,
+    result      TEXT,
+    UNIQUE      (device_id, ts, algo_id)
+);
+
+GRANT SELECT ON TABLE device.prediction_result to grafana_ro;
