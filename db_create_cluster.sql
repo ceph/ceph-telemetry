@@ -113,6 +113,8 @@ INSERT INTO grafana.version_to_name(version, name)
         ('14', 'Nautilus'),
         ('15', 'Octopus'),
         ('16', 'Pacific'),
+        ('17', 'Quincy'),
+        ('18', 'Reef'),
         ('Dev', NULL);
 
 -- When grafana draws a graph with a resolution of a day, it expects the DB
@@ -139,9 +141,18 @@ CREATE MATERIALIZED VIEW grafana.weekly_reports_sliding AS
         GENERATE_SERIES('2019-03-01', now()::date, interval '1' day) daily_window
     WHERE
         c.ts BETWEEN daily_window - interval '7' day AND daily_window + interval '1' day
+    -- Include only clusters that reported more than once
+    AND (c.cluster_id::text IN ( -- TODO check the text conversion
+            SELECT ts_cluster.cluster_id
+            FROM ts_cluster
+            GROUP BY ts_cluster.cluster_id
+            HAVING count(*) > 1)
+        )
     ORDER BY
         daily_window,
         cluster_id,
         c.ts DESC;
+
+CREATE INDEX ON grafana.weekly_reports_sliding (daily_window);
 
 ALTER MATERIALIZED VIEW grafana.weekly_reports_sliding OWNER TO grafana;

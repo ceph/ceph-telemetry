@@ -95,7 +95,11 @@ def insert_into_all_tables(conn, report_id_serial, j):
                 # to 'metadata' table by extracting the numeric version part
                 if attr == 'ceph_version':
                     metadata['attr'] = 'ceph_version_norm'
-                    metadata['value'] = re.match('ceph version v*([0-9.]+|Dev).*', value).group(1)
+                    ceph_version_norm = re.match('ceph version v*([0-9.]+|Dev).*', value)
+                    if ceph_version_norm is None:
+                        print(f"public.report.id = {report_id_serial} contains an invalid ceph_version value ({value}), skipping this metadata attribute")
+                        continue
+                    metadata['value'] = ceph_version_norm.group(1)
                     dbhelper.run_insert(cur, sql, metadata)
 
     for i in range(j.get('rbd', {}).get('num_pools', 0)):
@@ -124,10 +128,28 @@ def main():
     # Fetch only reports which are not already in ts_cluster;
     # COALESCE returns the first non-NULL value, so '0' is
     # the returned id in case ts_cluster table is empty.
+    #
+    # Also, filter out test clusters so they will not appear
+    # in the dashboard. Please note that 'organization' key
+    # does not always exist in report (NULL); but when it does,
+    # report['organization'] can have the value "null".
+    #
+    # We replace '\u0000' with ' ' since some reports might contain
+    # it in an assert_msg of one of the reported crashes. This is interpreted by
+    # Postgres as Unicode NULL and throws an error:
+    #     psycopg2.DataError: unsupported Unicode escape sequence
+    #     DETAIL:  \u0000 cannot be converted to text.
     dict_cur.execute("""SELECT id, report
                         FROM public.report
                         WHERE id > (SELECT COALESCE(MAX(ts_cluster.report_id), 0)
                                     FROM grafana.ts_cluster)
+                        AND
+                            (   --either the key does not exist in the report
+                                NOT replace(report, '\\u0000', ' ')::jsonb ? 'organization'
+                            OR
+                                -- or it exists, but its value is not 'ceph-qa'
+                                replace(report, '\\u0000', ' ')::jsonb#>'{organization}' != '"ceph-qa"'
+                            )
                         ORDER BY id""")
     cnt = 0
     try:
