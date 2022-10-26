@@ -1,46 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_POSTGRESQL",
-      "label": "PostgreSQL",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "postgres",
-      "pluginName": "PostgreSQL"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "8.1.2"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph (old)",
-      "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "postgres",
-      "name": "PostgreSQL",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -63,8 +21,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1646874823562,
+  "id": 32,
+  "iteration": 1660668933715,
   "links": [
     {
       "$$hashKey": "object:117",
@@ -156,7 +114,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- TODO: check if it's still correct with the 'tomorrow' box\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n        --inner join device.ts_device on w.report_id = device.ts_device.report_id\n\t\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\t\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\t\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)\n        and device.spec.class in ($class)\n        and lower(device.spec.vendor) in ($vendor)\n        and device.spec.model in ($model);\n\n/*\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding);\n*/  ",
+          "rawSql": "-- TODO: check if it's still correct with the 'tomorrow' box\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n\t\t    INNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\t\t    INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)\n        and device.spec.class in ($class)\n        and lower(device.spec.vendor) in ($vendor)\n        and device.spec.model in ($model);\n\n/*\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding);\n*/  ",
           "refId": "A",
           "select": [
             [
@@ -357,7 +315,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "    SELECT\n   \t\tsum(capacity)\n    FROM\n        device.weekly_reports_sliding w\n        --inner join device.ts_device on w.report_id = device.ts_device.report_id\n\t\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\t\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\t\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)\n        and device.spec.class in ($class)\n        and lower(device.spec.vendor) in ($vendor)\n        and device.spec.model in ($model);\n\n    \n/*\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding);\n*/  ",
+          "rawSql": "    SELECT\n   \t\tsum(capacity)\n    FROM\n        device.weekly_reports_sliding w\n\t\t    INNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\t\t    INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)\n        and device.spec.class in ($class)\n        and lower(device.spec.vendor) in ($vendor)\n        and device.spec.model in ($model);\n\n    \n/*\n    SELECT\n        COUNT(*) total\n    FROM\n        device.weekly_reports_sliding w\n    WHERE\n        daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding);\n*/  ",
           "refId": "A",
           "select": [
             [
@@ -424,9 +382,9 @@
       "id": 31,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "mean"
@@ -497,9 +455,9 @@
       "id": 26,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "mean"
@@ -584,9 +542,9 @@
       "id": 27,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "mean"
@@ -688,7 +646,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\t--count(*),\n\tlower(device.spec.vendor) as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  --and device.spec.class = 'normal'\n  and device.spec.class in ($class)\n  and lower(device.spec.vendor) in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.class != 'unknown'\nGROUP BY\n\tw.daily_window, lower(device.spec.vendor)\n--ORDER BY w.daily_window, lower(device.spec.vendor);\nORDER BY 2, w.daily_window;",
+          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\t--count(*),\n\tdevice.spec.vendor as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  --where $__timeFilter(daily_window)\n  where daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  --and device.spec.class = 'normal'\n  and device.spec.class in ($class)\n  and device.spec.vendor in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.class != 'unknown'\nGROUP BY\n\tw.daily_window, device.spec.vendor\n--ORDER BY w.daily_window, lower(device.spec.vendor);\nORDER BY --2, w.daily_window;\n  w.daily_window, 2;",
           "refId": "A",
           "select": [
             [
@@ -730,6 +688,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:490",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -738,6 +697,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:491",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -805,7 +765,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Total\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\ngroup by\n  daily_window\norder by\n  daily_window;\n",
+          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Total\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\nwhere daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\ngroup by\n  daily_window\norder by\n  daily_window;\n",
           "refId": "A",
           "select": [
             [
@@ -831,7 +791,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Reporting Invalid Telemetry\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\nwhere d.error is not NULL -- meaning there's an error and the device is not reporting correctly\ngroup by\n  daily_window\norder by\n  daily_window;\n",
+          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Reporting Invalid Telemetry\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\nwhere daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\nand d.error is not NULL -- meaning there's an error and the device is not reporting correctly\ngroup by\n  daily_window\norder by\n  daily_window;\n",
           "refId": "B",
           "select": [
             [
@@ -857,7 +817,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Reporting Valid Telemetry\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\nwhere d.error is  NULL\ngroup by\n  daily_window\norder by\n  daily_window;\n",
+          "rawSql": "select\n  daily_window as time, \n  count(*) as \"Reporting Valid Telemetry\"\nfrom\n  device.weekly_reports_sliding w\ninner join\n  device.ts_device d on w.report_id = d.report_id\nwhere daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\nand d.error is  NULL\ngroup by\n  daily_window\norder by\n  daily_window;\n",
           "refId": "C",
           "select": [
             [
@@ -899,6 +859,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:570",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -907,6 +868,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:571",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -974,7 +936,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(distinct(device.device.host_id)) as \"Distinct Hosts\"\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\nwhere $__timeFilter(daily_window)\n  and device.spec.class in ($class)\n  and device.spec.vendor in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.type is not NULL\nGROUP BY\n\tw.daily_window\nORDER BY w.daily_window;\n",
+          "rawSql": "SELECT\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(distinct(device.device.host_id)) as \"Distinct Hosts\"\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n--where $__timeFilter(daily_window)\nwhere daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  and device.spec.class in ($class)\n  and device.spec.vendor in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.type is not NULL\nGROUP BY\n\tw.daily_window\nORDER BY w.daily_window;\n",
           "refId": "A",
           "select": [
             [
@@ -1016,6 +978,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:634",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1024,6 +987,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:635",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1091,7 +1055,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(distinct(device.spec.model)) as \"Distinct Models\"\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  and lower(device.spec.vendor) in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.type is not NULL\nGROUP BY\n\tw.daily_window\nORDER BY w.daily_window;\n",
+          "rawSql": "SELECT\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(distinct(device.spec.model)) as \"Distinct Models\"\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  and device.spec.vendor in ($vendor)\n  and device.spec.model in ($model)\n  --and device.spec.type is not NULL\nGROUP BY\n\tw.daily_window\nORDER BY w.daily_window;\n",
           "refId": "A",
           "select": [
             [
@@ -1133,6 +1097,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:354",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1141,6 +1106,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:355",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1207,7 +1173,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.type::TEXT as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\nwhere $__timeFilter(daily_window)\n  and device.spec.type is not NULL\n  and lower(device.spec.vendor) in ($vendor)\nGROUP BY\n\tw.daily_window, device.spec.type\nORDER BY w.daily_window;\n",
+          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.type::TEXT as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n--where $__timeFilter(daily_window)\nwhere daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  and device.spec.type is not NULL\n  and device.spec.vendor in ($vendor)\nGROUP BY\n\tw.daily_window, device.spec.type\nORDER BY w.daily_window;\n",
           "refId": "A",
           "select": [
             [
@@ -1249,6 +1215,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1172",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1257,6 +1224,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:1173",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1328,7 +1296,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tdevice.spec.interface::TEXT as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  and\n      (device.spec.type::text = 'ssd'\n      or \n      device.spec.type::text = 'nvme')\n  and lower(device.spec.vendor) in ($vendor)\n  -- and device.spec.model in ($model)\nGROUP BY\n\tw.daily_window, device.spec.interface\nORDER BY 2, w.daily_window;\n",
+          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tdevice.spec.interface::TEXT as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  --where $__timeFilter(daily_window)\n  where daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  and\n      (device.spec.type::text = 'ssd'\n      or \n      device.spec.type::text = 'nvme')\n  and device.spec.vendor in ($vendor)\n  -- and device.spec.model in ($model)\nGROUP BY\n\tw.daily_window, device.spec.interface\nORDER BY w.daily_window, 2;\n",
           "refId": "A",
           "select": [
             [
@@ -1370,6 +1338,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1244",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1378,6 +1347,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:1245",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1444,7 +1414,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.interface::TEXT as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  and device.spec.type::text = 'hdd'\n  and lower(device.spec.vendor) in ($vendor)\nGROUP BY\n\tw.daily_window, device.spec.interface\nORDER BY w.daily_window;\n",
+          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.interface::TEXT as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n--where $__timeFilter(daily_window)\nWHERE daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\nAND device.spec.type::text = 'hdd'\nAND device.spec.vendor in ($vendor)\nGROUP BY\n\tw.daily_window, device.spec.interface\nORDER BY w.daily_window;\n",
           "refId": "A",
           "select": [
             [
@@ -1486,6 +1456,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1308",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1494,6 +1465,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:1309",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1560,7 +1532,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  $__timeGroup(w.daily_window, '1d', 0),\n\tsum(capacity) as \"Total Capacity\" \nfrom\n  \tdevice.weekly_reports_sliding w\n\tinner join device.ts_device on w.report_id = device.ts_device.report_id\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\nwhere $__timeFilter(w.daily_window)\n  --and device.spec.type is not NULL\n  and device.spec.class in ($class)\n  and lower(device.spec.vendor) in ($vendor)\n  and device.spec.model in ($model)\n group by\n  daily_window\norder by\n  daily_window;  \n",
+          "rawSql": "select\n  $__timeGroup(w.daily_window, '1d', 0),\n\tsum(capacity) as \"Total Capacity\" \nfrom\n  \tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON W.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n--where $__timeFilter(w.daily_window)\nWHERE daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\n  --and device.spec.type is not NULL\nAND device.spec.class in ($class)\nAND device.spec.vendor in ($vendor)\nAND device.spec.model in ($model)\nGROUP BY\n  daily_window\nORDER BY\n  daily_window;  \n",
           "refId": "A",
           "select": [
             [
@@ -1602,6 +1574,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:92",
           "format": "decbytes",
           "label": null,
           "logBase": 1,
@@ -1610,6 +1583,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:93",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1676,7 +1650,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  -- FIX THIS\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tlower(device.spec.vendor) as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  and device.spec.class = 'hw_raid'\nGROUP BY\n\tw.daily_window, lower(device.spec.vendor)\nORDER BY 2, w.daily_window;\n",
+          "rawSql": "SELECT\n  -- FIX THIS\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tdevice.spec.vendor as metric,\n\tcount(*)\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n-- where $__timeFilter(daily_window)\nWHERE daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\nAND device.spec.class = 'hw_raid'\nGROUP BY\n\tw.daily_window, device.spec.vendor\nORDER BY w.daily_window, 2;\n",
           "refId": "A",
           "select": [
             [
@@ -1718,6 +1692,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:218",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1726,6 +1701,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:219",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1792,7 +1768,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.class as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.ts_device ON w.report_id = device.ts_device.REPORT_ID\n\tINNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n  where $__timeFilter(daily_window)\n  and device.spec.class != 'unknown'\nGROUP BY\n\tw.daily_window, device.spec.class\nORDER BY w.daily_window, device.spec.class;\n",
+          "rawSql": "SELECT\n\t--w.daily_window as time,\n  $__timeGroup(w.daily_window, '1d', 0),\n\tcount(*),\n\tdevice.spec.class as metric\nFROM\n\tdevice.weekly_reports_sliding w\n\tINNER JOIN device.device ON w.DEVICE_ID = device.device.id\n\tINNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id\n--where $__timeFilter(daily_window)\nWHERE daily_window between $__timeFrom()::timestamptz - interval '1 day' and $__timeTo()\nAND device.spec.class != 'unknown'\nGROUP BY\n\tw.daily_window, device.spec.class\nORDER BY w.daily_window, device.spec.class;\n",
           "refId": "A",
           "select": [
             [
@@ -1834,6 +1810,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:468",
           "format": "locale",
           "label": null,
           "logBase": 1,
@@ -1842,6 +1819,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:469",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2074,8 +2052,16 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_POSTGRESQL}",
+        "current": {
+          "selected": false,
+          "text": [
+            "vm"
+          ],
+          "value": [
+            "vm"
+          ]
+        },
+        "datasource": "PostgreSQL",
         "definition": "select distinct(class) from device.spec\nwhere device.spec.class != 'unknown';",
         "description": null,
         "error": null,
@@ -2097,8 +2083,16 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_POSTGRESQL}",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "PostgreSQL",
         "definition": "select distinct(lower(vendor)) from device.spec\nwhere device.spec.class in ($class);",
         "description": null,
         "error": null,
@@ -2120,8 +2114,16 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_POSTGRESQL}",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "PostgreSQL",
         "definition": "/*\nselect distinct(lower(model))\nfrom device.spec\nwhere vendor = $vendor\n*/\n\nselect\n        distinct(model)\nfrom\n\tdevice.spec\nwhere\n       --device.spec.class = 'normal'\n--and\n       lower(device.spec.vendor) in ($vendor);\n/*\nwhere\n\tattr='ceph_version_norm'\nand\n      SPLIT_PART(value, '.', '1') in ($major);\n*/",
         "description": null,
         "error": null,
@@ -2144,7 +2146,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {
@@ -2163,5 +2165,5 @@
   "timezone": "",
   "title": "Main",
   "uid": "OVxgLWiGz",
-  "version": 15
+  "version": 23
 }

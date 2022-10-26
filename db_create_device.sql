@@ -150,7 +150,9 @@ CREATE MATERIALIZED VIEW device.weekly_reports_sliding AS
     SELECT
         DISTINCT ON(daily_window, device_id)
         daily_window,
-        report_id
+        report_id,
+        device_id,
+        error
         /*
         GENERATE_SERIES generates a table with a single column 'daily_window'
         which holds all the days (a row per day) between the first report
@@ -161,10 +163,20 @@ CREATE MATERIALIZED VIEW device.weekly_reports_sliding AS
         GENERATE_SERIES('2019-03-01', now()::date + interval '1' day, interval '1' day) daily_window
     WHERE
         d.ts BETWEEN daily_window - interval '7' day AND daily_window + interval '1' day
+    -- Include only devices that reported more than once
+    AND (d.device_id IN (
+            SELECT ts_device.device_id
+            FROM device.ts_device
+            GROUP BY ts_device.device_id
+            HAVING count(*) > 1)
+        )
     ORDER BY
         daily_window,
         device_id,
         d.ts DESC;
+
+-- Run this command as user 'postgres', since user 'telemetry' is not part of 'grafana' role.
+ALTER MATERIALIZED VIEW device.weekly_reports_sliding OWNER TO grafana;
 
 GRANT SELECT ON device.weekly_reports_sliding TO grafana_ro;
 

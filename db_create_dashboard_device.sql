@@ -94,8 +94,7 @@ AS $$
         COUNT(*) total
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)
@@ -122,12 +121,11 @@ AS $$
         COUNT(*) total
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)
-        AND device.ts_device.error IS NULL -- meaning there's data in the report
+        AND w.error IS NULL -- meaning there's data in the report
         AND device.spec.class = ANY (v_class::device.class[]) -- note the enum casting
         AND device.spec.vendor = ANY (v_vendor)
         AND device.spec.model = ANY (v_model);
@@ -151,9 +149,8 @@ AS $$
         SUM(capacity)
     FROM
         device.weekly_reports_sliding w
-		INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-		INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
-		INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
+        INNER JOIN device.device ON w.device_id = device.device.id
+        INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         daily_window = (SELECT MAX(daily_window) FROM device.weekly_reports_sliding)
         AND device.spec.class = ANY (v_class::device.class[])
@@ -253,8 +250,7 @@ AS $$
         COUNT(*)
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -275,7 +271,7 @@ SELECT
     total
 FROM
     dashboard_device.devices_by_vendors(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$class],
         ARRAY[$vendor],
@@ -302,12 +298,11 @@ AS $$
     SELECT
         daily_window,
         COUNT(*) total,
-        COUNT(d.error) errors,
-        COUNT(*) - COUNT(d.error) valids
+        COUNT(w.error) errors,
+        COUNT(*) - COUNT(w.error) valids
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device d ON w.report_id = d.report_id
-        INNER JOIN device.device ON d.device_id = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.spec_id = device.spec.id
     WHERE
             daily_window BETWEEN time_from AND time_to
@@ -329,7 +324,7 @@ SELECT
     valids AS "Reporting valid Telemetry"
 FROM
     dashboard_device.active_devices_graph(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$class],
         ARRAY[$vendor],
@@ -356,8 +351,7 @@ AS $$
         COUNT(DISTINCT(device.device.host_id))
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.device_id = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.spec_id = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -377,7 +371,7 @@ SELECT
     total AS "Distinct Hosts"
 FROM
     dashboard_device.distinct_hosts(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$class],
         ARRAY[$vendor],
@@ -403,8 +397,7 @@ AS $$
         COUNT(DISTINCT(device.spec.model))
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.device_id = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.spec_id = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -423,7 +416,7 @@ SELECT
     total AS "Distinct Models"
 FROM
     dashboard_device.distinct_models(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$vendor],
         ARRAY[$model]
@@ -449,8 +442,7 @@ AS $$
         device.spec.type::TEXT
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -470,7 +462,7 @@ SELECT
     device_type AS metric
 FROM
     dashboard_device.devices_by_type(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$vendor]
     );
@@ -495,8 +487,7 @@ AS $$
         COUNT(*)
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -519,7 +510,7 @@ SELECT
     total
 FROM
     dashboard_device.ssd_devices_by_interface(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$vendor]
     );
@@ -544,8 +535,7 @@ AS $$
         COUNT(*)
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
       WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -565,7 +555,7 @@ SELECT
     total
 FROM
     dashboard_device.hdd_devices_by_interface(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$vendor]
     );
@@ -590,8 +580,7 @@ AS $$
         SUM(capacity)
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -611,7 +600,7 @@ SELECT
     total AS "Total Capacity"
 FROM
     dashboard_device.total_capacity_graph(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$class],
         ARRAY[$vendor],
@@ -637,8 +626,7 @@ AS $$
         COUNT(*)
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -657,7 +645,7 @@ SELECT
     total
 FROM
     dashboard_device.devices_by_hw_raid(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo()
     );
 */
@@ -680,8 +668,7 @@ AS $$
         device.spec.class
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
@@ -700,7 +687,7 @@ SELECT
     class AS metric
 FROM
     dashboard_device.devices_by_class(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo()
     );
 */
@@ -724,13 +711,12 @@ AS $$
         device.spec.class
     FROM
         device.weekly_reports_sliding w
-        INNER JOIN device.ts_device ON w.report_id = device.ts_device.report_id
-        INNER JOIN device.device ON device.ts_device.DEVICE_ID = device.device.id
+        INNER JOIN device.device ON w.device_id = device.device.id
         INNER JOIN device.spec ON device.device.SPEC_ID = device.spec.id
     WHERE
         w.daily_window BETWEEN time_from AND time_to
         AND device.spec.class = ANY (v_class::device.class[])
-        AND device.ts_device.error IS NOT NULL
+        AND w.error IS NOT NULL
     GROUP BY
         w.daily_window, device.spec.class
     ORDER BY
@@ -745,7 +731,7 @@ SELECT
     class AS metric
 FROM
     dashboard_device.invalid_reports_by_device_class(
-        $__timeFrom(),
+        $__timeFrom()::timestamptz - interval '1 day',
         $__timeTo(),
         ARRAY[$class]
     );
