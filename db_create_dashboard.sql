@@ -682,10 +682,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -728,10 +728,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -776,10 +776,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.osd_count / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -824,10 +824,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -872,10 +872,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -922,10 +922,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.osd_count::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.osd_count::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -972,10 +972,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -1018,10 +1018,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN
@@ -1066,10 +1066,10 @@ LANGUAGE SQL SECURITY DEFINER
 AS $$
     SELECT
         daily_window,
-        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p25,
-        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p50,
-        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p75,
-        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / c.hosts_num::REAL) AS p100
+        PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p25,
+        PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p50,
+        PERCENTILE_DISC(0.75) WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p75,
+        PERCENTILE_DISC(1)    WITHIN GROUP (ORDER BY c.total_bytes / NULLIF(c.hosts_num::REAL, 0)) AS p100
     FROM
         grafana.weekly_reports_sliding w
     INNER JOIN

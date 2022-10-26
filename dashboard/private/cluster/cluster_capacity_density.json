@@ -1,19 +1,4 @@
 {
-  "__inputs": [],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "8.1.2"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph (old)",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -36,7 +21,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 19,
   "links": [],
   "panels": [
     {
@@ -134,6 +119,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:127",
           "decimals": null,
           "format": "bytes",
           "label": null,
@@ -143,6 +129,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:128",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -251,6 +238,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:316",
           "decimals": null,
           "format": "bytes",
           "label": null,
@@ -260,6 +248,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:317",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -368,6 +357,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:245",
           "decimals": null,
           "format": "bytes",
           "label": null,
@@ -377,6 +367,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:246",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -445,7 +436,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \ndaily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select \ndaily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -487,6 +478,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:376",
           "decimals": null,
           "format": "locale",
           "label": null,
@@ -496,6 +488,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:377",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -544,6 +537,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -559,7 +555,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -601,6 +597,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:256",
           "format": "locale",
           "label": null,
           "logBase": 2,
@@ -609,6 +606,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:257",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -657,6 +655,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -672,7 +673,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.osd_count / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -714,6 +715,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:421",
           "format": "locale",
           "label": null,
           "logBase": 2,
@@ -722,6 +724,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:422",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -772,6 +775,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -787,7 +793,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.osd_count::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.osd_count::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.osd_count::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.osd_count::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -829,6 +835,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:539",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -837,6 +844,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:540",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -887,6 +895,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -902,7 +913,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.osd_count::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.osd_count::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.osd_count::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.osd_count::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\nand c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\nand c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -944,6 +955,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:599",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -952,6 +964,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:600",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1002,6 +1015,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -1017,7 +1033,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.osd_count::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.osd_count::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.osd_count::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.osd_count::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\nand c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.osd_count::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.osd_count > 0\nand c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -1059,6 +1075,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:659",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -1067,6 +1084,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:660",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1117,6 +1135,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -1132,7 +1153,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \ndaily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select \ndaily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -1174,6 +1195,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:196",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -1182,6 +1204,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:197",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1230,6 +1253,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -1245,7 +1271,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real < 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -1287,6 +1313,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:136",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -1295,6 +1322,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:137",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1343,6 +1371,9 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pluginVersion": "8.1.2",
       "pointradius": 0.5,
@@ -1358,7 +1389,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / c.hosts_num::real) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / c.hosts_num::real) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / c.hosts_num::real) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / c.hosts_num::real) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
+          "rawSql": "select daily_window as time, \nPERCENTILE_DISC(0.25) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p25,\nPERCENTILE_DISC(0.50) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p50,\nPERCENTILE_DISC(0.75) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p75,\nPERCENTILE_DISC(1) within group (order by c.total_bytes / NULLIF(c.hosts_num::real, 0)) as p100\nfrom grafana.weekly_reports_sliding w \ninner join grafana.ts_cluster c on w.report_id = c.report_id\nwhere c.total_bytes / 1024 / 1024 / 1024 / 1024 / 1024::real > 1\ngroup by daily_window\norder by daily_window;",
           "refId": "A",
           "select": [
             [
@@ -1400,6 +1431,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:835",
           "format": "bytes",
           "label": null,
           "logBase": 2,
@@ -1408,6 +1440,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:836",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1449,5 +1482,5 @@
   "timezone": "",
   "title": "Capacity Density",
   "uid": "Pb90AgCWk",
-  "version": 4
+  "version": 6
 }
