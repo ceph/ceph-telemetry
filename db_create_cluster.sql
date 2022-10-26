@@ -142,10 +142,10 @@ CREATE MATERIALIZED VIEW grafana.weekly_reports_sliding AS
     WHERE
         c.ts BETWEEN daily_window - interval '7' day AND daily_window + interval '1' day
     -- Include only clusters that reported more than once
-    AND (c.cluster_id::text IN ( -- TODO check the text conversion
-            SELECT ts_cluster.cluster_id
-            FROM ts_cluster
-            GROUP BY ts_cluster.cluster_id
+    AND (c.cluster_id IN (
+            SELECT _c.cluster_id
+            FROM grafana.ts_cluster _c
+            GROUP BY _c.cluster_id
             HAVING count(*) > 1)
         )
     ORDER BY
