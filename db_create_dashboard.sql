@@ -410,6 +410,95 @@ FROM
 	dashboard.total_capacity_dsw($__timeFrom(), $__timeTo());
 */
 
+------- PANEL Total / Used Capacity by Version -------
+CREATE FUNCTION dashboard.capacity_by_version(
+        time_from TIMESTAMP WITH TIME ZONE,
+        time_to TIMESTAMP WITH TIME ZONE,
+        display TEXT, -- 'Major' / 'Minor'
+        major TEXT[],
+        minor TEXT[]
+    )
+    RETURNS TABLE (
+        daily_window TIMESTAMP WITH TIME ZONE,
+        value TEXT, -- (holds the version, either major or minor)
+        total_bytes_by_version DOUBLE PRECISION,
+        total_used_bytes_by_version DOUBLE PRECISION
+    )
+LANGUAGE SQL SECURITY DEFINER
+AS $$
+    WITH
+    -- capacity_per_osd, per report
+    cpo AS (
+        SELECT
+            w.daily_window,
+            c.report_id,
+            c.TOTAL_BYTES / c.osd_count::real AS "total_bytes_per_osd",
+            c.TOTAL_USED_BYTES / c.osd_count::real AS "total_used_bytes_per_osd"
+        FROM
+            grafana.weekly_reports_sliding w
+        INNER JOIN
+            grafana.ts_cluster c
+        ON w.report_id = c.report_id
+        WHERE osd_count > 0 -- avoid division by zero;
+        -- if osd_count is reported as 0, so are 'total_bytes' and 'total_used_bytes'
+    )
+    SELECT
+        cpo.daily_window,
+        CASE WHEN display = 'Major'
+             THEN SPLIT_PART(gm.value, '.', 1)
+             ELSE gm.value
+        END AS value,
+        -- gm.total is the total number of daemons with a certain attribute
+        SUM(gm.total * total_bytes_per_osd) AS "total_bytes_by_version", -- total bytes
+        -- of all osds reporting this ceph_version
+        SUM(gm.total * total_used_bytes_per_osd) AS "total_used_bytes_by_version" -- total used bytes
+        -- of all osds reporting this ceph_version
+    FROM
+        cpo
+    INNER JOIN
+        grafana.metadata gm
+    ON cpo.report_id = gm.report_id
+    WHERE
+        cpo.daily_window BETWEEN time_from AND time_to
+        AND
+            gm.attr = 'ceph_version_norm'
+        AND
+            CASE WHEN display='Major'
+                 THEN SPLIT_PART(gm.value, '.', 1)
+                 ELSE gm.value
+            END
+              IN
+              (SELECT UNNEST(CASE WHEN display='Major'
+                                  THEN ARRAY[major]
+                                  ELSE ARRAY[minor]
+                             END)
+              )
+        AND
+            gm.entity = 'osd'
+    GROUP BY 1, 2
+    ORDER BY 1; --cpo.daily_window
+$$;
+
+/*
+-- Dashboard query:
+SELECT
+    $__timeGroup(daily_window, '1d', 0),
+    value AS metric,
+    total_bytes_by_version,     -- selected in 'Total Capacity by Version'
+    total_used_bytes_by_version -- selected in 'Total Used Capacity by Version'
+FROM
+	dashboard.capacity_by_version(
+        $__timeFrom(),
+        $__timeTo(),
+        -- display holds 'Major' / 'Minor';
+        -- Grafana adds single quotes only to array elements, and '$display' is a string,
+        -- so we add it manually here.
+        '$display',
+        ARRAY[$major],
+        ARRAY[$minor]
+    );
+*/
+
 ------- PANEL Cluster Distribution by Total Capacity -------
 CREATE FUNCTION dashboard.cluster_distribution_by_total_capacity(
         time_from TIMESTAMP WITH TIME ZONE,
